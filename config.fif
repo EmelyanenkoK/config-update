@@ -267,9 +267,8 @@ PROGRAM{
   unpack_validator_descr PROCINLINE:<{
     //  cs
     8 LDU	//  _2 cs
-    32 PUSHINT	//  _2 cs _5=32
-    NOT	//  _2 cs _6
-    s1 s2 XCHG	//  cs _2 _6
+    SWAP
+    -33 PUSHINT	//  cs _2 _6
     AND	//  cs _7
     83 EQINT	//  cs _9
     41 THROWIFNOT
