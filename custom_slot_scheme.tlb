@@ -1,0 +1,4 @@
+set_custom_slot#6E43536C query_id:uint64 value:(^Cell) index:int32 receiver_address:MsgAddressInt = InternalMsgBody;
+
+custom_slot_set#ef764f4b query_id:uint64 = InternalMsgBody;
+custom_slot_not_set#ef764f6f  query_id:uint64 = InternalMsgBody;
