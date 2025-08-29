@@ -1145,17 +1145,16 @@ PROGRAM{
     s5 s2 XCPU	//  signature in_msg action vote_dict cs cfg_dict stored_seqno public_key msg_seqno stored_seqno
     EQUAL	//  signature in_msg action vote_dict cs cfg_dict stored_seqno public_key _33
     33 THROWIFNOT
-    s5 PUSH
-    1450144869 PUSHINT	//  signature in_msg action vote_dict cs cfg_dict stored_seqno public_key action _35=1450144869
-    EQUAL	//  signature in_msg action vote_dict cs cfg_dict stored_seqno public_key _36
-    IFJMP:<{	//  signature in_msg action vote_dict cs cfg_dict stored_seqno public_key
-      s5 POP	//  signature in_msg public_key vote_dict cs cfg_dict stored_seqno
+    s0 s5 XCHG
+    1450144869 PUSHINT	//  signature in_msg public_key vote_dict cs cfg_dict stored_seqno action _35=1450144869
+    EQUAL	//  signature in_msg public_key vote_dict cs cfg_dict stored_seqno _36
+    IFJMP:<{	//  signature in_msg public_key vote_dict cs cfg_dict stored_seqno
       s0 s2 XCHG	//  signature in_msg public_key vote_dict stored_seqno cfg_dict cs
       16 LDU	//  signature in_msg public_key vote_dict stored_seqno cfg_dict _39 cs
       256 LDU	//  signature in_msg public_key vote_dict stored_seqno cfg_dict idx phash cs
       ENDS
       OVER	//  signature in_msg public_key vote_dict stored_seqno cfg_dict idx phash idx
-      get_validator_descr INLINECALLDICT	//  signature in_msg public_key vote_dict stored_seqno cfg_dict idx phash _96 _97
+      get_validator_descr INLINECALLDICT	//  signature in_msg public_key vote_dict stored_seqno cfg_dict idx phash _81 _82
       DROP	//  signature in_msg public_key vote_dict stored_seqno cfg_dict idx phash vdescr
       unpack_validator_descr INLINECALLDICT	//  signature in_msg public_key vote_dict stored_seqno cfg_dict idx phash val_pubkey weight
       s8 s9 s9 XCHG3	//  weight phash public_key vote_dict stored_seqno cfg_dict idx in_msg signature val_pubkey
@@ -1171,25 +1170,8 @@ PROGRAM{
       ROT	//  phash idx weight
       proceed_register_vote INLINECALLDICT	//  _64
       DROP	// 
-    }>	//  signature in_msg action vote_dict cs cfg_dict stored_seqno public_key
-    s0 s6 XCHG	//  signature public_key action vote_dict cs cfg_dict stored_seqno in_msg
-    HASHSU	//  signature public_key action vote_dict cs cfg_dict stored_seqno _66
-    s0 s7 s6 XC2PU	//  stored_seqno public_key action vote_dict cs cfg_dict _66 signature public_key
-    CHKSIGNU	//  stored_seqno public_key action vote_dict cs cfg_dict _67
-    34 THROWIFNOT
-    ACCEPT
-    s0 s5 XCHG	//  cfg_dict public_key action vote_dict cs stored_seqno
-    INC	//  cfg_dict public_key action vote_dict cs _71
-    32 MODPOW2#	//  cfg_dict public_key action vote_dict cs stored_seqno
-    s5 s0 s4 PUSH3
-    s5 PUSH	//  cfg_dict public_key action vote_dict cs stored_seqno cfg_dict stored_seqno public_key vote_dict
-    store_data INLINECALLDICT
-    COMMIT
-    s3 s5 XCHG
-    s4 s5 s5 XCHG3	//  stored_seqno vote_dict cfg_dict public_key action cs
-    perform_action INLINECALLDICT	//  stored_seqno vote_dict cfg_dict public_key
-    s3 s0 s3 XCHG3	//  cfg_dict stored_seqno public_key vote_dict
-    store_data INLINECALLDICT
+    }>	//  signature in_msg public_key vote_dict cs cfg_dict stored_seqno
+    7 BLKDROP	// 
   }>
   run_ticktock PROC:<{
     //  is_tock
