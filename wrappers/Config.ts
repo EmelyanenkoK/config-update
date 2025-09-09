@@ -1,0 +1,94 @@
+import { Op } from './Constants';
+import { Address, beginCell, Cell, Contract, ContractProvider, Dictionary, Sender, SendMode, toNano} from "@ton/core";
+
+export class Config implements Contract {
+    constructor(readonly address: Address,readonly init?: { code: Cell; data: Cell}){}
+
+    static createFromAddress(address: Address) {
+        return new Config(address);
+    }
+    async getState(provider: ContractProvider) {
+        const { state } = await provider.getState();
+        if(state.type !== 'active') {
+            throw new Error(`Config is not active: ${state.type}`);
+        }
+        return {
+            code: state.code ? Cell.fromBoc(state.code)[0] : null,
+            data: state.data ? Cell.fromBoc(state.data)[0] : null
+        }
+    }
+
+    async getData(provider: ContractProvider) {
+        const state = await this.getState(provider);
+        if(!state.data) {
+            throw new Error("Config data is not defined!");
+        }
+        return state.data;
+    }
+
+    async getConfig(provider: ContractProvider) {
+        const data = await this.getData(provider);
+        return Dictionary.loadDirect(Dictionary.Keys.Int(32), Dictionary.Values.Cell(), data.refs[0]);
+    }
+
+    async getProposal(provider: ContractProvider, prop_hash: Buffer | bigint) {
+        const prop = Buffer.isBuffer(prop_hash) ? BigInt('0x' + prop_hash.toString('hex')) : prop_hash;
+        const { stack } = await provider.get('get_proposal', [{ type: 'int', value: prop}]);
+        return stack.readTupleOpt();
+    }
+
+    static newVotingProposalMessage(proposal: {
+        expire_at: number,
+        critical: boolean,
+        param_id: number,
+        value?: Cell,
+        cur_hash?: Buffer
+    }, query_id: bigint | number = 0) {
+        const hashBuilder = beginCell();
+        if(Buffer.isBuffer(proposal.cur_hash)) {
+            hashBuilder.storeBit(true).storeBuffer(proposal.cur_hash, 32);
+        } else {
+            hashBuilder.storeBit(false);
+        }
+
+        const propCell = beginCell()
+                          .storeUint(0xf3, 8) // Tag
+                          .storeInt(proposal.param_id, 32)
+                          .storeMaybeRef(proposal.value)
+                          .storeBuilder(hashBuilder)
+                         .endCell();
+
+        return beginCell()
+                        .storeUint(Op.newVoting, 32)
+                        .storeUint(query_id, 64)
+                        .storeUint(proposal.expire_at, 32)
+                        .storeBit(proposal.critical)
+                        .storeRef(propCell)
+                    .endCell()
+
+    }
+
+    static setCustomSlotMessage(param_id: -1024 | -1025, value: Cell, receiver_address: Address | null,
+                                query_id: bigint | number = 0) {
+        return beginCell()
+                        .storeUint(Op.setCustomSlot, 32)
+                        .storeUint(query_id, 64)
+                        .storeInt(param_id, 32)
+                        .storeAddress(receiver_address)
+                        .storeRef(value)
+                    .endCell();
+    }
+
+    async sendSetCustomSlot(provider: ContractProvider,
+                            via: Sender,
+                            param_id: -1024 | -1025, param_value: Cell, receiver: Address,
+                            value: bigint = toNano('10'),
+                            query_id: bigint | number = 0) {
+
+        return await provider.internal(via, {
+            body: Config.setCustomSlotMessage(param_id, param_value, receiver, query_id),
+            value,
+            sendMode: SendMode.PAY_GAS_SEPARATELY
+        });
+    }
+}
