@@ -506,7 +506,7 @@ int register_voting_proposal(slice cs, int msg_value) impure inline_ref {
       return send_error(s_addr, query_id, 0xee764f6f);
     }
   }
-  if (tag == 0x6E43536C) {
+  if (tag == 0x6e43536c) {
     ;; new custom param
     cell value = in_msg~load_ref();
     int index = in_msg~load_int(32);
