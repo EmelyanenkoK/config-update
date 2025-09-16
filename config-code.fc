@@ -134,8 +134,8 @@ _ perform_action(cfg_dict, public_key, action, cs) inline_ref {
 (cell, int, cell) get_current_vset() inline_ref {
   var vset = config_param(34);
   var cs = begin_parse(vset);
-  ;; validators_ext#12 utime_since:uint32 utime_until:uint32 
-  ;; total:(## 16) main:(## 16) { main <= total } { main >= 1 } 
+  ;; validators_ext#12 utime_since:uint32 utime_until:uint32
+  ;; total:(## 16) main:(## 16) { main <= total } { main >= 1 }
   ;; total_weight:uint64
   throw_unless(40, cs~load_uint(8) == 0x12);
   cs~skip_bits(32 + 32 + 16 + 16);
@@ -511,11 +511,13 @@ int register_voting_proposal(slice cs, int msg_value) impure inline_ref {
     int depth = value.cell_depth();
     slice ADMIN_ADDRESS_FOR_SLOT_-1024 = "Ef8zMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM0vF"a;
     slice ADMIN_ADDRESS_FOR_SLOT_-1025 = "Ef9VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVbxn"a;
-    int ok = (( index == -1024 ) & ( equal_slice_bits(s_addr, ADMIN_ADDRESS_FOR_SLOT_-1024 ))) |
-             (( index == -1025 ) & ( equal_slice_bits(s_addr, ADMIN_ADDRESS_FOR_SLOT_-1025 ))) ;
-    ok &= (exotic == 0); ;; forbid exotic cells in config
-    ok &= (depth == 0); ;; forbid cells with more than one ref
-    if (ok) {
+
+    if (
+      (exotic == 0) & ;; forbid exotic cells in config
+      (depth == 0) & ;; forbid cells with more than one ref
+      ((( index == -1024 ) & equal_slice_bits(s_addr, ADMIN_ADDRESS_FOR_SLOT_-1024 )) |
+      (( index == -1025 ) & equal_slice_bits(s_addr, ADMIN_ADDRESS_FOR_SLOT_-1025 )))
+    ) {
       set_conf_param(index, value);
       ;; send confirmation
       return send_confirmation(receiver_address, query_id, 0xef764f4b);
