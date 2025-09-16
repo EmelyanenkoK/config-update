@@ -520,6 +520,9 @@ int register_voting_proposal(slice cs, int msg_value) impure inline_ref {
     (_, int exotic) = value.check_exotic();
     int depth = value.cell_depth();
 
+    (int response_wc, int response_address_hash) = receiver_address.parse_std_addr(); ;; Checking the validity of the response address
+    response_wc~impure_touch(); ;; Prevent compiler optimisation from removing parse_std_addr checking
+
     if (
       (exotic == 0) & ;; forbid exotic cells in config
       (depth == 0) & ;; forbid cells with more than one ref

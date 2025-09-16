@@ -1018,6 +1018,9 @@ PROGRAM{
       NIP
       s3 PUSH
       CDEPTH
+      s2 PUSH
+      REWRITESTDADDR
+      2DROP
       SWAP
       0 EQINT
       SWAP
