@@ -307,6 +307,18 @@ PROGRAM{
       0 PUSHINT
       PUSHNULL
     }>
+    OVER
+    10 PUSHNEGPOW2
+    EQUAL
+    s2 PUSH
+    -1025 PUSHINT
+    EQUAL
+    OR
+    IFJMP:<{
+      3 BLKDROP
+      0 PUSHINT
+      PUSHNULL
+    }>
     9 PUSHINT
     s4 PUSH
     32 PUSHINT

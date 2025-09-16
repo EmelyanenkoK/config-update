@@ -187,6 +187,10 @@ _ perform_action(cfg_dict, public_key, action, cs) inline_ref {
     ;; current value has incorrect hash, do not apply changes
     return (cfg_dict, 0, null());
   }
+  if ((param_id == CUSTOM_PARAM_1) | (param_id == CUSTOM_PARAM_2)) {
+    ;; Custom parameters cannot be changed by validator voting, do not apply changes
+    return (cfg_dict, 0, null());
+  }
   cell mparams = cfg_dict.idict_get_ref(32, 9);  ;; mandatory parameters
   var (_, found?) = mparams.idict_get?(32, param_id);
   if (found? & param_val.null?()) {

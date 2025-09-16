@@ -325,41 +325,53 @@ PROGRAM{
       0 PUSHINT	//  cfg_dict _19=0
       PUSHNULL	//  cfg_dict _19=0 _20
     }>	//  cfg_dict critical? param_id param_val
-    9 PUSHINT	//  cfg_dict critical? param_id param_val _22=9
-    s4 PUSH
-    32 PUSHINT	//  cfg_dict critical? param_id param_val _22=9 cfg_dict _23=32
-    DICTIGETOPTREF	//  cfg_dict critical? param_id param_val mparams
-    s2 s(-1) PUXC
-    32 PUSHINT	//  cfg_dict critical? param_id param_val param_id mparams _27=32
-    DICTIGET
-    NULLSWAPIFNOT	//  cfg_dict critical? param_id param_val _49 _50
-    NIP	//  cfg_dict critical? param_id param_val found?
-    OVER	//  cfg_dict critical? param_id param_val found? param_val
-    ISNULL	//  cfg_dict critical? param_id param_val found? _29
-    AND	//  cfg_dict critical? param_id param_val _30
+    OVER
+    10 PUSHNEGPOW2	//  cfg_dict critical? param_id param_val param_id _21=-1024
+    EQUAL	//  cfg_dict critical? param_id param_val _22
+    s2 PUSH
+    -1025 PUSHINT	//  cfg_dict critical? param_id param_val _22 param_id _23=-1025
+    EQUAL	//  cfg_dict critical? param_id param_val _22 _24
+    OR	//  cfg_dict critical? param_id param_val _25
     IFJMP:<{	//  cfg_dict critical? param_id param_val
       3 BLKDROP	//  cfg_dict
-      0 PUSHINT	//  cfg_dict _31=0
-      PUSHNULL	//  cfg_dict _31=0 _32
+      0 PUSHINT	//  cfg_dict _26=0
+      PUSHNULL	//  cfg_dict _26=0 _27
     }>	//  cfg_dict critical? param_id param_val
-    10 PUSHINT	//  cfg_dict critical? param_id param_val _34=10
+    9 PUSHINT	//  cfg_dict critical? param_id param_val _29=9
     s4 PUSH
-    32 PUSHINT	//  cfg_dict critical? param_id param_val _34=10 cfg_dict _35=32
+    32 PUSHINT	//  cfg_dict critical? param_id param_val _29=9 cfg_dict _30=32
+    DICTIGETOPTREF	//  cfg_dict critical? param_id param_val mparams
+    s2 s(-1) PUXC
+    32 PUSHINT	//  cfg_dict critical? param_id param_val param_id mparams _34=32
+    DICTIGET
+    NULLSWAPIFNOT	//  cfg_dict critical? param_id param_val _56 _57
+    NIP	//  cfg_dict critical? param_id param_val found?
+    OVER	//  cfg_dict critical? param_id param_val found? param_val
+    ISNULL	//  cfg_dict critical? param_id param_val found? _36
+    AND	//  cfg_dict critical? param_id param_val _37
+    IFJMP:<{	//  cfg_dict critical? param_id param_val
+      3 BLKDROP	//  cfg_dict
+      0 PUSHINT	//  cfg_dict _38=0
+      PUSHNULL	//  cfg_dict _38=0 _39
+    }>	//  cfg_dict critical? param_id param_val
+    10 PUSHINT	//  cfg_dict critical? param_id param_val _41=10
+    s4 PUSH
+    32 PUSHINT	//  cfg_dict critical? param_id param_val _41=10 cfg_dict _42=32
     DICTIGETOPTREF	//  cfg_dict critical? param_id param_val cparams
     s2 s(-1) PUXC
-    32 PUSHINT	//  cfg_dict critical? param_id param_val param_id cparams _38=32
+    32 PUSHINT	//  cfg_dict critical? param_id param_val param_id cparams _45=32
     DICTIGET
-    NULLSWAPIFNOT	//  cfg_dict critical? param_id param_val _51 _52
+    NULLSWAPIFNOT	//  cfg_dict critical? param_id param_val _58 _59
     NIP	//  cfg_dict critical? param_id param_val found?
     s0 s3 XCHG2	//  cfg_dict param_val param_id found? critical?
-    LESS	//  cfg_dict param_val param_id _40
+    LESS	//  cfg_dict param_val param_id _47
     IFJMP:<{	//  cfg_dict param_val param_id
       2DROP	//  cfg_dict
-      0 PUSHINT	//  cfg_dict _41=0
-      PUSHNULL	//  cfg_dict _41=0 _42
+      0 PUSHINT	//  cfg_dict _48=0
+      PUSHNULL	//  cfg_dict _48=0 _49
     }>	//  cfg_dict param_val param_id
     s1 s(-1) s2 PU2XC
-    32 PUSHINT	//  param_id param_val param_val param_id cfg_dict _44=32
+    32 PUSHINT	//  param_id param_val param_val param_id cfg_dict _51=32
     DICTISETREF	//  param_id param_val cfg_dict
     -ROT	//  cfg_dict param_id param_val
   }>
