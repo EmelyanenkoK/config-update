@@ -2,6 +2,7 @@
   "name": "config_update_tests",
   "version": "0.0.1",
   "scripts": {
+    "build": "npx blueprint build",
     "test": "jest"
   },
   "devDependencies": {

@@ -1,0 +1,14 @@
+#!/usr/bin/fift -s
+"TonUtil.fif" include
+"Asm.fif" include
+
+"config.fif" include
+
+."code hash="
+
+dup hashB Bx. cr cr
+
+."code boc data="
+
+2 boc+>B dup Bx. cr cr
+

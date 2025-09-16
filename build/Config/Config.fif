@@ -1,0 +1,1313 @@
+"Asm.fif" include
+// automatically generated from `./stdlib.fc` `./config-code.fc` 
+PROGRAM{
+  DECLPROC set_conf_param
+  DECLPROC load_data
+  DECLPROC store_data
+  DECLPROC parse_vote_config
+  DECLPROC get_vote_config_internal
+  DECLPROC get_vote_config
+  DECLPROC check_validator_set
+  DECLPROC send_answer
+  DECLPROC send_confirmation
+  DECLPROC send_error
+  DECLPROC change_elector_code
+  1666 DECLMETHOD after_code_upgrade
+  DECLPROC perform_action
+  DECLPROC get_current_vset
+  DECLPROC get_validator_descr
+  DECLPROC unpack_validator_descr
+  DECLPROC parse_config_proposal
+  DECLPROC accept_proposal
+  DECLPROC perform_proposed_action
+  DECLPROC unpack_proposal_status
+  DECLPROC update_proposal_status
+  DECLPROC begin_pack_proposal_status
+  DECLPROC register_vote
+  DECLPROC proceed_register_vote
+  DECLPROC scan_proposal
+  DECLPROC scan_random_proposal
+  DECLPROC register_voting_proposal
+  DECLPROC recv_internal
+  DECLPROC recv_external
+  DECLPROC run_ticktock
+  85143 DECLMETHOD seqno
+  DECLPROC unpack_proposal
+  94347 DECLMETHOD get_proposal
+  107394 DECLMETHOD list_proposals
+  75077 DECLMETHOD proposal_storage_price
+  set_conf_param PROC:<{
+    c4 PUSH
+    CTOS
+    LDREF
+    s3 s3 XCHG2
+    32 PUSHINT
+    DICTISETREF
+    NEWC
+    STREF
+    SWAP
+    STSLICER
+    ENDC
+    c4 POP
+  }>
+  load_data PROCINLINE:<{
+    c4 PUSH
+    CTOS
+    LDREF
+    32 LDU
+    256 LDU
+    LDDICT
+    ENDS
+  }>
+  store_data PROCINLINE:<{
+    s0 s3 XCHG
+    NEWC
+    STREF
+    s1 s2 XCHG
+    32 STU
+    256 STU
+    STDICT
+    ENDC
+    c4 POP
+  }>
+  parse_vote_config PROCINLINE:<{
+    CTOS
+    8 LDU
+    SWAP
+    54 EQINT
+    44 THROWIFNOT
+    8 LDU
+    8 LDU
+    8 LDU
+    8 LDU
+    32 LDU
+    32 LDU
+    32 LDU
+    32 LDU
+    ENDS
+  }>
+  get_vote_config_internal PROCREF:<{
+    CTOS
+    8 LDU
+    SWAP
+    145 PUSHINT
+    EQUAL
+    44 THROWIFNOT
+    SWAP
+    IF:<{
+      LDREF
+      NIP
+    }>
+    PLDREF
+    parse_vote_config INLINECALLDICT
+  }>
+  get_vote_config PROCINLINE:<{
+    11 PUSHINT
+    CONFIGOPTPARAM
+    get_vote_config_internal INLINECALLDICT
+  }>
+  check_validator_set PROC:<{
+    CTOS
+    8 LDU
+    SWAP
+    18 EQINT
+    9 THROWIFNOT
+    32 LDU
+    32 LDU
+    16 LDU
+    16 LDU
+    DROP
+    DUP
+    0 GTINT
+    9 THROWIFNOT
+    GEQ
+    9 THROWIFNOT
+  }>
+  send_answer PROC:<{
+    0 PUSHINT
+    24 PUSHINT
+    NEWC
+    6 STU
+    s0 s5 XCHG2
+    STSLICER
+    s1 s4 XCHG
+    111 STU
+    32 STU
+    64 STU
+    ENDC
+    SWAP
+    SENDRAWMSG
+  }>
+  send_confirmation PROCINLINE:<{
+    64 PUSHINT
+    send_answer CALLDICT
+  }>
+  send_error PROCINLINE:<{
+    64 PUSHINT
+    send_answer CALLDICT
+  }>
+  change_elector_code PROC:<{
+    1 PUSHINT
+    CONFIGOPTPARAM
+    CTOS
+    256 PLDU
+    NOW
+    1313042276 PUSHINT
+    0 PUSHINT
+    50431 PUSHINT
+    NEWC
+    17 STU
+    s1 s4 XCHG
+    256 STU
+    30 PUSHPOW2
+    STGRAMS
+    s1 s3 XCHG
+    107 STU
+    s1 s2 XCHG
+    32 STU
+    64 STU
+    SWAP
+    STSLICER
+    ENDC
+    0 PUSHINT
+    SENDRAWMSG
+  }>
+  after_code_upgrade PROC:<{
+    2DROP
+  }>
+  perform_action PROCREF:<{
+    OVER
+    1130778657 PUSHINT
+    EQUAL
+    IFJMP:<{
+      NIP
+      32 LDI
+      LDREF
+      ENDS
+      s0 s1 s3 XCHG3
+      32 PUSHINT
+      DICTISETREF
+      SWAP
+    }>
+    OVER
+    1313042276 PUSHINT
+    EQUAL
+    IFJMP:<{
+      NIP
+      LDREF
+      OVER
+      SETCODE
+      c3 PUSH
+      s0 s2 XCHG
+      CTOS
+      BLESS
+      c3 POP
+      SWAP
+      after_code_upgrade CALLDICT
+      0 THROW
+    }>
+    OVER
+    1348619041 PUSHINT
+    EQUAL
+    IFJMP:<{
+      2 1 BLKDROP2
+      256 LDU
+      ENDS
+    }>
+    OVER
+    1313074949 PUSHINT
+    EQUAL
+    IFJMP:<{
+      NIP
+      change_elector_code CALLDICT
+    }>
+    DROP
+    32 THROWIF
+  }>
+  get_current_vset PROCREF:<{
+    34 PUSHINT
+    CONFIGOPTPARAM
+    DUP
+    CTOS
+    8 LDU
+    SWAP
+    18 EQINT
+    40 THROWIFNOT
+    96 PUSHINT
+    SDSKIPFIRST
+    64 LDU
+    LDDICT
+    ENDS
+  }>
+  get_validator_descr PROCREF:<{
+    get_current_vset INLINECALLDICT
+    s2 POP
+    -ROT
+    16 PUSHINT
+    DICTUGET
+    NULLSWAPIFNOT
+    DROP
+    SWAP
+  }>
+  unpack_validator_descr PROCINLINE:<{
+    8 LDU
+    SWAP
+    -33 PUSHINT
+    AND
+    83 EQINT
+    41 THROWIFNOT
+    32 LDU
+    SWAP
+    2390828938 PUSHINT
+    EQUAL
+    41 THROWIFNOT
+    256 LDU
+    64 LDU
+    DROP
+  }>
+  parse_config_proposal PROCREF:<{
+    CTOS
+    8 LDI
+    SWAP
+    -13 EQINT
+    44 THROWIFNOT
+    32 LDI
+    LDOPTREF
+    1 LDI
+    SWAP
+    IF:<{
+      256 LDU
+    }>ELSE<{
+      -1 PUSHINT
+      SWAP
+    }>
+    ENDS
+  }>
+  accept_proposal PROCREF:<{
+    SWAP
+    parse_config_proposal INLINECALLDICT
+    s2 s4 PUSH2
+    32 PUSHINT
+    DICTIGETOPTREF
+    DUP
+    ISNULL
+    IF:<{
+      DROP
+      0 PUSHINT
+    }>ELSE<{
+      HASHCU
+    }>
+    OVER
+    NEQ
+    SWAP
+    -1 GTINT
+    AND
+    IFJMP:<{
+      3 BLKDROP
+      0 PUSHINT
+      PUSHNULL
+    }>
+    9 PUSHINT
+    s4 PUSH
+    32 PUSHINT
+    DICTIGETOPTREF
+    s2 s(-1) PUXC
+    32 PUSHINT
+    DICTIGET
+    NULLSWAPIFNOT
+    NIP
+    OVER
+    ISNULL
+    AND
+    IFJMP:<{
+      3 BLKDROP
+      0 PUSHINT
+      PUSHNULL
+    }>
+    10 PUSHINT
+    s4 PUSH
+    32 PUSHINT
+    DICTIGETOPTREF
+    s2 s(-1) PUXC
+    32 PUSHINT
+    DICTIGET
+    NULLSWAPIFNOT
+    NIP
+    s0 s3 XCHG2
+    LESS
+    IFJMP:<{
+      2DROP
+      0 PUSHINT
+      PUSHNULL
+    }>
+    s1 s(-1) s2 PU2XC
+    32 PUSHINT
+    DICTISETREF
+    -ROT
+  }>
+  perform_proposed_action PROCREF:<{
+    OVER
+    -999 PUSHINT
+    EQUAL
+    IFJMP:<{
+      2 1 BLKDROP2
+      DUP
+      ISNULL
+      IF:<{
+        DROP
+        0 PUSHINT
+      }>ELSE<{
+        CTOS
+        256 PLDU
+      }>
+    }>
+    DUP
+    ISNULL
+    IFJMP:<{
+      2DROP
+    }>
+    OVER
+    -1000 PUSHINT
+    EQUAL
+    IFJMP:<{
+      NIP
+      CTOS
+      LDREF
+      OVER
+      SETCODE
+      c3 PUSH
+      s0 s2 XCHG
+      CTOS
+      BLESS
+      c3 POP
+      SWAP
+      after_code_upgrade CALLDICT
+      0 THROW
+    }>
+    SWAP
+    -1001 PUSHINT
+    EQUAL
+    IF:<{
+      CTOS
+      change_elector_code CALLDICT
+    }>ELSE<{
+      DROP
+    }>
+  }>
+  unpack_proposal_status PROCREF:<{
+    8 LDI
+    SWAP
+    -50 EQINT
+    44 THROWIFNOT
+    32 LDU
+    LDREF
+    1 LDI
+    LDDICT
+    64 LDI
+    256 LDU
+  }>
+  update_proposal_status PROCREF:<{
+    get_vote_config INLINECALLDICT
+    s4 s7 XCHG
+    7 BLKDROP
+    s0 s2 XCHG
+    8 LDU
+    8 LDU
+    8 LDU
+    DROP
+    s0 s3 XCHG
+    -1 GTINT
+    s1 s3 XCHG
+    SUB
+    s0 s3 PUXC
+    GREATER
+    IFJMP:<{
+      3 BLKDROP
+      PUSHNULL
+    }>
+    DEC
+    DUP
+    0 LESSINT
+    IFJMP:<{
+      3 BLKDROP
+      PUSHNULL
+    }>
+    NEWC
+    8 STU
+    8 STU
+    8 STU
+    ENDC
+    CTOS
+  }>
+  begin_pack_proposal_status PROCINLINE:<{
+    -50 PUSHINT
+    NEWC
+    8 STI
+    s1 s6 XCHG
+    32 STU
+    s1 s4 XCHG
+    STREF
+    s1 s2 XCHG
+    1 STI
+    STDICT
+    64 STI
+    256 STU
+  }>
+  register_vote PROCREF:<{
+    s2 s3 PUSH2
+    8 PUSHPOW2
+    DICTUGET
+    NULLSWAPIFNOT
+    IFNOTJMP:<{
+      4 BLKDROP
+      PUSHNULL
+      -1 PUSHINT
+    }>
+    get_current_vset INLINECALLDICT
+    DROP
+    SWAP
+    HASHCU
+    s0 s2 XCHG
+    unpack_proposal_status INLINECALLDICT
+    s6 PUSH
+    NOW
+    LEQ
+    IFJMP:<{
+      11 BLKDROP
+      SWAP
+      8 PUSHPOW2
+      DICTUDEL
+      DROP
+      PUSHNULL
+      -1 PUSHINT
+    }>
+    s1 s8 PUSH2
+    NEQ
+    IF:<{
+      NIP
+      s2 POP
+      s2 PUSH
+      update_proposal_status INLINECALLDICT
+      PUSHNULL
+      s0 s5 XCHG
+      3 PUSHINT
+      2 MULRSHIFT#
+      s1 s5 XCHG
+    }>ELSE<{
+      s7 POP
+      s7 POP
+    }>
+    s5 PUSH
+    ISNULL
+    IFJMP:<{
+      9 BLKDROP
+      SWAP
+      8 PUSHPOW2
+      DICTUDEL
+      DROP
+      PUSHNULL
+      -1 PUSHINT
+    }>
+    s8 s1 PUSH2
+    16 PUSHINT
+    DICTUGET
+    NULLSWAPIFNOT
+    NIP
+    IFJMP:<{
+      10 BLKDROP
+      PUSHNULL
+      -2 PUSHINT
+    }>
+    NOW
+    NEWC
+    32 STU
+    s9 s2 XCHG2
+    16 PUSHINT
+    DICTUSETB
+    s7 PUSH
+    s8 s7 XCHG2
+    SUB
+    s0 s6 PUXC
+    XOR
+    -1 GTINT
+    IFJMP:<{
+      3 4 BLKSWAP
+      begin_pack_proposal_status INLINECALLDICT
+      SWAP
+      STSLICER
+      s0 s2 XCHG
+      8 PUSHPOW2
+      DICTUSETB
+      PUSHNULL
+      2 PUSHINT
+    }>
+    DUP
+    get_vote_config INLINECALLDICT
+    s5 s7 XCHG
+    7 BLKDROP
+    s0 s4 XCHG
+    8 LDU
+    8 LDU
+    8 LDU
+    DROP
+    SWAP
+    INC
+    s0 s6 PUXC
+    GEQ
+    IFJMP:<{
+      2DROP
+      s5 s6 XCHG2
+      5 BLKDROP
+      s2 s3 XCHG2
+      8 PUSHPOW2
+      DICTUDEL
+      DROP
+      6 PUSHINT
+      ROT
+      SUB
+      s1 s2 XCHG
+    }>
+    s4 s5 XCHG
+    s3 s4 XCHG
+    s2 s3 XCHG
+    s8 s7 s6 XCHG3
+    begin_pack_proposal_status INLINECALLDICT
+    s1 s2 XCHG
+    8 STU
+    s1 s2 XCHG
+    8 STU
+    8 STU
+    s0 s2 XCHG
+    8 PUSHPOW2
+    DICTUSETB
+    PUSHNULL
+    2 PUSHINT
+  }>
+  proceed_register_vote PROCREF:<{
+    load_data INLINECALLDICT
+    s6 s1 s3 XCHG3
+    s5 s4 XCHG2
+    register_vote INLINECALLDICT
+    s3 s5 s4 PUSH3
+    s5 PUSH
+    store_data INLINECALLDICT
+    OVER
+    ISNULL
+    IFNOT:<{
+      6 PUSHINT
+      OVER
+      SUB
+      s4 s4 s0 XCHG3
+      accept_proposal INLINECALLDICT
+      s2 s6 s5 PUSH3
+      s6 PUSH
+      store_data INLINECALLDICT
+      OVER
+      IF:<{
+        COMMIT
+        s2 s3 XCHG
+        s2 s5 XCHG
+        perform_proposed_action INLINECALLDICT
+        s4 s0 s3 XCHG3
+        store_data INLINECALLDICT
+      }>ELSE<{
+        s4 s6 XCHG
+        6 BLKDROP
+      }>
+    }>ELSE<{
+      5 1 BLKDROP2
+    }>
+  }>
+  scan_proposal PROCREF:<{
+    NIP
+    get_current_vset INLINECALLDICT
+    DROP
+    SWAP
+    HASHCU
+    s2 PUSH
+    unpack_proposal_status INLINECALLDICT
+    s3 POP
+    s5 PUSH
+    NOW
+    LEQ
+    IFJMP:<{
+      9 BLKDROP
+      PUSHNULL
+      TRUE
+    }>
+    s6 PUSH
+    EQUAL
+    IFJMP:<{
+      7 BLKDROP
+      FALSE
+    }>
+    s7 POP
+    s0 s6 s6 XC2PU
+    update_proposal_status INLINECALLDICT
+    PUSHNULL
+    s0 s5 XCHG
+    3 PUSHINT
+    2 MULRSHIFT#
+    OVER
+    ISNULL
+    IFJMP:<{
+      7 BLKDROP
+      PUSHNULL
+      TRUE
+    }>
+    s3 s5 XCHG
+    s2 s4 XCHG
+    s3 s6 XCHG
+    s6 s0 s6 XCHG3
+    begin_pack_proposal_status INLINECALLDICT
+    SWAP
+    STSLICER
+    ENDC
+    CTOS
+    TRUE
+  }>
+  scan_random_proposal PROCREF:<{
+    RANDU256
+    OVER
+    8 PUSHPOW2
+    DICTUGETNEXTEQ
+    NULLSWAPIFNOT2
+    IFNOTJMP:<{
+      2DROP
+    }>
+    s0 s1 PUXC
+    scan_proposal INLINECALLDICT
+    IF:<{
+      DUP
+      ISNULL
+      IF:<{
+        DROP
+        SWAP
+        8 PUSHPOW2
+        DICTUDEL
+        DROP
+      }>ELSE<{
+        s0 s2 XCHG
+        8 PUSHPOW2
+        DICTUSET
+      }>
+    }>ELSE<{
+      2DROP
+    }>
+  }>
+  register_voting_proposal PROCREF:<{
+    SWAP
+    32 LDU
+    LDREF
+    1 LDI
+    DROP
+    s2 PUSH
+    30 RSHIFT#
+    IF:<{
+      s0 s2 XCHG
+      NOW
+      SUB
+      s0 s2 XCHG
+    }>
+    OVER
+    parse_config_proposal INLINECALLDICT
+    s2 PUSH
+    10 PUSHNEGPOW2
+    EQUAL
+    s3 PUSH
+    -1025 PUSHINT
+    EQUAL
+    OR
+    IFJMP:<{
+      7 BLKDROP
+      -3279055190 PUSHINT
+    }>
+    DUP
+    -1 GTINT
+    IF:<{
+      s2 PUSH
+      CONFIGOPTPARAM
+      DUP
+      ISNULL
+      IF:<{
+        DROP
+        0 PUSHINT
+      }>ELSE<{
+        HASHCU
+      }>
+      OVER
+      NEQ
+      IF:<{
+        DROP
+        -3798229846 PUSHINT
+      }>
+    }>ELSE<{
+      9 PUSHINT
+      CONFIGOPTPARAM
+      s3 s(-1) PUXC
+      32 PUSHINT
+      DICTIGET
+      NULLSWAPIFNOT
+      NIP
+      IF:<{
+        DROP
+        -3444600428 PUSHINT
+      }>
+    }>
+    OVER
+    CDEPTH
+    8 PUSHPOW2
+    GEQ
+    IF:<{
+      DROP
+      -3261162582 PUSHINT
+    }>
+    DUP
+    -1 LESSINT
+    IFJMP:<{
+      6 1 BLKDROP2
+    }>
+    s3 PUSH
+    IFNOT:<{
+      10 PUSHINT
+      CONFIGOPTPARAM
+      s1 s3 XCHG
+      32 PUSHINT
+      DICTIGET
+      NULLSWAPIFNOT
+      NIP
+      IF:<{
+        -3279055188 PUSHINT
+        s2 POP
+      }>
+    }>ELSE<{
+      s2 POP
+    }>
+    OVER
+    -1 LESSINT
+    IFJMP:<{
+      s1 s5 XCHG
+      5 BLKDROP
+    }>
+    NIP
+    OVER
+    get_vote_config INLINECALLDICT
+    s4 POP
+    s4 POP
+    s5 POP
+    s8 s(-1) PUXC
+    LESS
+    IFJMP:<{
+      9 BLKDROP
+      -3313004649 PUSHINT
+    }>
+    s7 s3 XCHG2
+    MIN
+    s0 s3 XCHG
+    10 PUSHPOW2
+    CDATASIZE
+    s2 POP
+    10 PUSHPOW2
+    ADD
+    s1 s7 XCHG
+    MUL
+    s0 s6 XCHG
+    2 ADDCONST
+    s1 s2 XCHG
+    MUL
+    s1 s5 XCHG
+    ADD
+    s0 s1 PUSH2
+    MUL
+    s0 s2 XCHG
+    NOW
+    ADD
+    load_data INLINECALLDICT
+    s8 PUSH
+    HASHCU
+    s0 s1 PUSH2
+    8 PUSHPOW2
+    DICTUGET
+    NULLSWAPIFNOT
+    IFJMP:<{
+      s8 POP
+      s9 POP
+      s9 POP
+      s0 s5 XCHG
+      unpack_proposal_status INLINECALLDICT
+      s4 s12 PUXC
+      NEQ
+      IFJMP:<{
+        15 BLKDROP
+        -3279055189 PUSHINT
+      }>
+      s5 s8 PUSH2
+      GEQ
+      IFJMP:<{
+        15 BLKDROP
+        -3245109829 PUSHINT
+      }>
+      s8 s5 PUXC
+      SUB
+      14 PUSHPOW2
+      ADD
+      s1 s9 XCHG
+      MUL
+      s13 s13 XCPU
+      SUB
+      30 PUSHPOW2
+      LESS
+      IFJMP:<{
+        13 BLKDROP
+        -4032919844 PUSHINT
+      }>
+      s5 s6 XCHG
+      s0 s1 s4 XCHG3
+      s7 s7 XCHG2
+      s0 s3 XCHG
+      begin_pack_proposal_status INLINECALLDICT
+      s0 s4 XCHG2
+      STSLICER
+      s0 s4 s5 XCHG3
+      8 PUSHPOW2
+      DICTUSETB
+      s1 s3 XCHG
+      store_data INLINECALLDICT
+    }>
+    DROP
+    s6 POP
+    s10 s6 XCPU
+    SUB
+    30 PUSHPOW2
+    LESS
+    IFJMP:<{
+      10 BLKDROP
+      -4032919844 PUSHINT
+    }>
+    get_current_vset INLINECALLDICT
+    DROP
+    3 PUSHINT
+    2 MULRSHIFT#
+    0 PUSHINT
+    PUSHNULL
+    s0 s3 XCHG
+    HASHCU
+    s5 s7 XCHG
+    s4 s11 XCHG
+    s1 s10 XCHG
+    s3 s3 s0 XCHG3
+    begin_pack_proposal_status INLINECALLDICT
+    s1 s7 XCHG
+    8 STU
+    s1 s4 XCHG
+    16 STU
+    s0 s1 s6 XCHG3
+    8 PUSHPOW2
+    DICTUSETB
+    s1 s2 XCHG
+    store_data INLINECALLDICT
+  }>
+  recv_internal PROC:<{
+    SWAP
+    CTOS
+    4 LDU
+    LDMSGADDR
+    DROP
+    DUP
+    REWRITESTDADDR
+    SWAP
+    INC
+    s0 s3 XCHG
+    1 PUSHINT
+    AND
+    s1 s3 XCHG
+    OR
+    s3 PUSH
+    SEMPTY
+    OR
+    IFJMP:<{
+      4 BLKDROP
+    }>
+    s0 s2 XCHG
+    32 LDU
+    64 LDU
+    s2 PUSH
+    1314280276 PUSHINT
+    EQUAL
+    IFJMP:<{
+      s2 POP
+      s4 POP
+      LDREF
+      ENDS
+      1 PUSHINT
+      CONFIGOPTPARAM
+      DUP
+      ISNULL
+      IF:<{
+        DROP
+        -1 PUSHINT
+      }>ELSE<{
+        CTOS
+        256 PLDU
+      }>
+      s0 s2 XCHG
+      FALSE
+      s0 s3 XCHG
+      EQUAL
+      IF:<{
+        NIP
+        DUP
+        check_validator_set CALLDICT
+        OVER
+        NOW
+        GREATER
+        s0 s2 XCHG
+        GREATER
+        AND
+        SWAP
+      }>
+      SWAP
+      IFJMP:<{
+        36 PUSHINT
+        SWAP
+        set_conf_param CALLDICT
+        SWAP
+        4000730955 PUSHINT
+        send_confirmation INLINECALLDICT
+      }>
+      DROP
+      SWAP
+      4000730991 PUSHINT
+      send_error INLINECALLDICT
+    }>
+    s3 POP
+    OVER
+    1849906028 PUSHINT
+    EQUAL
+    IFJMP:<{
+      NIP
+      s3 POP
+      LDREF
+      32 LDI
+      LDMSGADDR
+      ENDS
+      s2 PUSH
+      XCTOS
+      NIP
+      s3 PUSH
+      CDEPTH
+      x{9FE6666666666666666666666666666666666666666666666666666666666666667_} PUSHSLICE
+      x{9FEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB_} PUSHSLICE
+      s5 PUSH
+      10 PUSHNEGPOW2
+      EQUAL
+      s8 s2 PUXC
+      SDEQ
+      s1 s2 XCHG
+      AND
+      s5 PUSH
+      -1025 PUSHINT
+      EQUAL
+      s8 s2 XCHG2
+      SDEQ
+      AND
+      s1 s6 XCHG
+      OR
+      SWAP
+      0 EQINT
+      AND
+      s0 s4 XCHG
+      0 EQINT
+      s1 s4 XCHG
+      AND
+      IFJMP:<{
+        SWAP
+        set_conf_param CALLDICT
+        SWAP
+        4017508171 PUSHINT
+        send_confirmation INLINECALLDICT
+      }>
+      2DROP
+      SWAP
+      4017508207 PUSHINT
+      send_error INLINECALLDICT
+    }>
+    OVER
+    1851150418 PUSHINT
+    EQUAL
+    IFJMP:<{
+      NIP
+      s0 s3 XCHG
+      register_voting_proposal INLINECALLDICT
+      64 PUSHINT
+      OVER
+      NEGATE
+      s2 PUSH
+      -1 GTINT
+      IF:<{
+        2DROP
+        4 PUSHINT
+        RAWRESERVE
+        3998634066 PUSHINT
+        7 PUSHPOW2
+      }>ELSE<{
+        s2 POP
+      }>
+      s2 s3 XCHG
+      send_answer CALLDICT
+    }>
+    s4 POP
+    DUP
+    1450144869 PUSHINT
+    EQUAL
+    IFJMP:<{
+      DROP
+      9 PUSHPOW2
+      LDSLICEX
+      DUP
+      32 LDU
+      16 LDU
+      256 LDU
+      ENDS
+      s0 s2 XCHG
+      1450144837 PUSHINT
+      EQUAL
+      37 THROWIFNOT
+      DUP
+      get_validator_descr INLINECALLDICT
+      DROP
+      unpack_validator_descr INLINECALLDICT
+      s4 s5 s5 XCHG3
+      CHKSIGNS
+      34 THROWIFNOT
+      s0 s2 XCHG
+      proceed_register_vote INLINECALLDICT
+      3597947456 PUSHINT
+      ADD
+      s1 s2 XCHG
+      send_confirmation INLINECALLDICT
+    }>
+    3 1 BLKDROP2
+    DUP
+    0 EQINT
+    SWAP
+    31 PUSHPOW2
+    AND
+    OR
+    37 THROWIFNOT
+  }>
+  recv_external PROC:<{
+    9 PUSHPOW2
+    LDSLICEX
+    DUP
+    32 LDU
+    32 LDU
+    32 LDU
+    SWAP
+    NOW
+    LESS
+    35 THROWIF
+    DUP
+    SDEPTH
+    7 PUSHPOW2
+    GREATER
+    39 THROWIF
+    load_data INLINECALLDICT
+    s5 s2 XCPU
+    EQUAL
+    33 THROWIFNOT
+    s0 s5 XCHG
+    1450144869 PUSHINT
+    EQUAL
+    IFJMP:<{
+      s0 s2 XCHG
+      16 LDU
+      256 LDU
+      ENDS
+      OVER
+      get_validator_descr INLINECALLDICT
+      DROP
+      unpack_validator_descr INLINECALLDICT
+      s8 s9 s9 XCHG3
+      CHKSIGNS
+      34 THROWIFNOT
+      ACCEPT
+      s0 s2 XCHG
+      INC
+      32 MODPOW2#
+      2 3 BLKSWAP
+      store_data INLINECALLDICT
+      COMMIT
+      ROT
+      proceed_register_vote INLINECALLDICT
+      DROP
+    }>
+    7 BLKDROP
+  }>
+  run_ticktock PROC:<{
+    DROP
+    load_data INLINECALLDICT
+    32 PUSHINT
+    36 PUSHINT
+    s5 s1 PUSH2
+    DICTIGETOPTREF
+    FALSE
+    OVER
+    ISNULL
+    IFNOT:<{
+      OVER
+      CTOS
+      DUP
+      SBITS
+      39 GTINT
+      IF:<{
+        8 LDU
+        32 PLDU
+        NOW
+        LEQ
+        SWAP
+        18 EQINT
+        AND
+        IF:<{
+          DROP
+          34 PUSHINT
+          ROT
+          s6 s6 XCPU
+          DICTISETGETOPTREF
+          s5 s1 s0 PUXCPU
+          DICTISETGETOPTREF
+          DROP
+          36 PUSHINT
+          s0 s1 s5 XCHG3
+          DICTIDEL
+          DROP
+          s0 s3 XCHG
+          TRUE
+        }>ELSE<{
+          2 1 BLKDROP2
+        }>
+      }>ELSE<{
+        s1 s3 XCHG
+        3 BLKDROP
+      }>
+    }>ELSE<{
+      2 1 BLKDROP2
+    }>
+    IFNOT:<{
+      scan_random_proposal INLINECALLDICT
+    }>
+    store_data INLINECALLDICT
+  }>
+  seqno PROC:<{
+    c4 PUSH
+    CTOS
+    32 PLDU
+  }>
+  unpack_proposal PROCREF:<{
+    unpack_proposal_status INLINECALLDICT
+    PUSHNULL
+    32 PUSHPOW2
+    UNTIL:<{
+      s5 PUSH
+      16 PUSHINT
+      DICTUGETPREV
+      NULLSWAPIFNOT2
+      s2 POP
+      OVER
+      IF:<{
+        s0 s2 PUXC
+        CONS
+        s0 s2 XCHG
+      }>
+      SWAP
+      NOT
+    }>
+    DROP
+    s4 POP
+    8 LDU
+    8 LDU
+    8 LDU
+    ENDS
+    s0 s7 XCHG
+    parse_config_proposal INLINECALLDICT
+    TRIPLE
+    s0 s6 XCHG
+    s0 s7 XCHG
+    s3 s5 XCHG
+    s3 s4 XCHG
+    9 TUPLE
+  }>
+  get_proposal PROC:<{
+    load_data INLINECALLDICT
+    3 1 BLKDROP2
+    8 PUSHPOW2
+    DICTUGET
+    NULLSWAPIFNOT
+    IFNOTJMP:<{
+      DROP
+      PUSHNULL
+    }>
+    unpack_proposal INLINECALLDICT
+  }>
+  list_proposals PROC:<{
+    load_data INLINECALLDICT
+    3 1 BLKDROP2
+    256 PUSHPOW2DEC
+    PUSHNULL
+    UNTIL:<{
+      s1 s2 XCPU
+      8 PUSHPOW2
+      DICTUGETPREV
+      NULLSWAPIFNOT2
+      DUP
+      IF:<{
+        s0 s2 XCHG
+        unpack_proposal INLINECALLDICT
+        s1 s(-1) PUXC
+        PAIR
+        s0 s3 XCHG2
+        CONS
+        s0 s2 XCHG
+      }>ELSE<{
+        s2 POP
+      }>
+      SWAP
+      NOT
+      s1 s2 XCHG
+    }>
+    2 1 BLKDROP2
+  }>
+  proposal_storage_price PROC:<{
+    c4 PUSH
+    CTOS
+    PLDREF
+    11 PUSHINT
+    SWAP
+    32 PUSHINT
+    DICTIGETOPTREF
+    s1 s4 XCHG
+    get_vote_config_internal INLINECALLDICT
+    4 4 BLKDROP2
+    s5 s3 PUXC
+    LESS
+    IFJMP:<{
+      6 BLKDROP
+      -1 PUSHINT
+    }>
+    s4 s4 XCHG2
+    MIN
+    s0 s2 XCHG
+    10 PUSHPOW2
+    ADD
+    s1 s3 XCHG
+    MUL
+    s0 s3 XCHG
+    2 ADDCONST
+    s1 s2 XCHG
+    MUL
+    s1 s2 XCHG
+    ADD
+    SWAP
+    MUL
+  }>
+}END>c
