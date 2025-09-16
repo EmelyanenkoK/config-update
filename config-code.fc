@@ -4,6 +4,11 @@
 (slice, int) check_exotic(cell c) asm "XCTOS";
 int equal_slice_bits (slice a, slice b) asm "SDEQ";
 
+const int CUSTOM_PARAM_1 = -1024;
+const int CUSTOM_PARAM_2 = -1025;
+const slice ADMIN_ADDRESS_FOR_CUSTOM_PARAM_1 = "Ef8zMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM0vF"a;
+const slice ADMIN_ADDRESS_FOR_CUSTOM_PARAM_2 = "Ef9VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVbxn"a;
+
 () set_conf_param(int index, cell value) impure {
   var cs = get_data().begin_parse();
   var cfg_dict = cs~load_ref();
@@ -388,7 +393,7 @@ int register_voting_proposal(slice cs, int msg_value) impure inline_ref {
     expire_at -= now();
   }
   var (param_id, param_val, hash) = parse_config_proposal(proposal);
-  if ((param_id == -1024) | (param_id == -1025)) {
+  if ((param_id == CUSTOM_PARAM_1) | (param_id == CUSTOM_PARAM_2)) {
       return -0xc3726956; ;; negative hash means error and will be returned as answer tag
   }
   if (hash >= 0) {
@@ -502,21 +507,19 @@ int register_voting_proposal(slice cs, int msg_value) impure inline_ref {
     }
   }
   if (tag == 0x6E43536C) {
-    ;; new custom slot
+    ;; new custom param
     cell value = in_msg~load_ref();
     int index = in_msg~load_int(32);
     slice receiver_address = in_msg~load_msg_addr();
     in_msg.end_parse();
     (_, int exotic) = value.check_exotic();
     int depth = value.cell_depth();
-    slice ADMIN_ADDRESS_FOR_SLOT_-1024 = "Ef8zMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM0vF"a;
-    slice ADMIN_ADDRESS_FOR_SLOT_-1025 = "Ef9VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVbxn"a;
 
     if (
       (exotic == 0) & ;; forbid exotic cells in config
       (depth == 0) & ;; forbid cells with more than one ref
-      ((( index == -1024 ) & equal_slice_bits(s_addr, ADMIN_ADDRESS_FOR_SLOT_-1024 )) |
-      (( index == -1025 ) & equal_slice_bits(s_addr, ADMIN_ADDRESS_FOR_SLOT_-1025 )))
+      ((( index == CUSTOM_PARAM_1 ) & equal_slice_bits(s_addr, ADMIN_ADDRESS_FOR_CUSTOM_PARAM_1 )) |
+      (( index == CUSTOM_PARAM_2 ) & equal_slice_bits(s_addr, ADMIN_ADDRESS_FOR_CUSTOM_PARAM_2 )))
     ) {
       set_conf_param(index, value);
       ;; send confirmation
