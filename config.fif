@@ -951,30 +951,26 @@ PROGRAM{
     SWAP	//  msg_value in_msg in_msg_cell
     CTOS	//  msg_value in_msg cs
     4 LDU	//  msg_value in_msg flags cs
-    LDMSGADDR	//  msg_value in_msg flags _181 _180
+    LDMSGADDR	//  msg_value in_msg flags _175 _174
     DROP	//  msg_value in_msg flags s_addr
     DUP	//  msg_value in_msg flags s_addr s_addr
     REWRITESTDADDR	//  msg_value in_msg flags s_addr src_wc src_addr
     s2 PUSH
     x{9FE6666666666666666666666666666666666666666666666666666666666666667_} PUSHSLICE	//  msg_value in_msg flags s_addr src_wc src_addr s_addr _16
     SDEQ	//  msg_value in_msg flags s_addr src_wc src_addr _17
-    s3 PUSH
-    x{9FEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB_} PUSHSLICE	//  msg_value in_msg flags s_addr src_wc src_addr _17 s_addr _18
-    SDEQ	//  msg_value in_msg flags s_addr src_wc src_addr _17 _19
-    OR	//  msg_value in_msg flags s_addr src_wc src_addr _20
-    s0 s2 XCHG	//  msg_value in_msg flags s_addr _20 src_addr src_wc
-    -1 EQINT	//  msg_value in_msg flags s_addr _20 src_addr _22
-    s1 s2 XCHG	//  msg_value in_msg flags s_addr src_addr _20 _22
+    s0 s2 XCHG	//  msg_value in_msg flags s_addr _17 src_addr src_wc
+    -1 EQINT	//  msg_value in_msg flags s_addr _17 src_addr _19
+    s1 s2 XCHG	//  msg_value in_msg flags s_addr src_addr _17 _19
     OR	//  msg_value in_msg flags s_addr src_addr is_valid_workchain
-    NOT	//  msg_value in_msg flags s_addr src_addr _24
+    NOT	//  msg_value in_msg flags s_addr src_addr _21
     s0 s3 XCHG
-    1 PUSHINT	//  msg_value in_msg _24 s_addr src_addr flags _25=1
-    AND	//  msg_value in_msg _24 s_addr src_addr _26
-    s1 s3 XCHG	//  msg_value in_msg src_addr s_addr _24 _26
-    OR	//  msg_value in_msg src_addr s_addr _27
-    s3 PUSH	//  msg_value in_msg src_addr s_addr _27 in_msg
-    SEMPTY	//  msg_value in_msg src_addr s_addr _27 _28
-    OR	//  msg_value in_msg src_addr s_addr _29
+    1 PUSHINT	//  msg_value in_msg _21 s_addr src_addr flags _22=1
+    AND	//  msg_value in_msg _21 s_addr src_addr _23
+    s1 s3 XCHG	//  msg_value in_msg src_addr s_addr _21 _23
+    OR	//  msg_value in_msg src_addr s_addr _24
+    s3 PUSH	//  msg_value in_msg src_addr s_addr _24 in_msg
+    SEMPTY	//  msg_value in_msg src_addr s_addr _24 _25
+    OR	//  msg_value in_msg src_addr s_addr _26
     IFJMP:<{	//  msg_value in_msg src_addr s_addr
       4 BLKDROP	// 
     }>	//  msg_value in_msg src_addr s_addr
@@ -982,58 +978,58 @@ PROGRAM{
     32 LDU	//  msg_value s_addr src_addr tag in_msg
     64 LDU	//  msg_value s_addr src_addr tag query_id in_msg
     s2 PUSH
-    1314280276 PUSHINT	//  msg_value s_addr src_addr tag query_id in_msg tag _38=1314280276
-    EQUAL	//  msg_value s_addr src_addr tag query_id in_msg _39
+    1314280276 PUSHINT	//  msg_value s_addr src_addr tag query_id in_msg tag _35=1314280276
+    EQUAL	//  msg_value s_addr src_addr tag query_id in_msg _36
     IFJMP:<{	//  msg_value s_addr src_addr tag query_id in_msg
       s2 POP
       s4 POP	//  query_id s_addr src_addr in_msg
       LDREF	//  query_id s_addr src_addr vset in_msg
       ENDS
-      1 PUSHINT	//  query_id s_addr src_addr vset _45=1
+      1 PUSHINT	//  query_id s_addr src_addr vset _42=1
       CONFIGOPTPARAM	//  query_id s_addr src_addr vset elector_param
       DUP	//  query_id s_addr src_addr vset elector_param elector_param
-      ISNULL	//  query_id s_addr src_addr vset elector_param _48
+      ISNULL	//  query_id s_addr src_addr vset elector_param _45
       IF:<{	//  query_id s_addr src_addr vset elector_param
         DROP	//  query_id s_addr src_addr vset
-        -1 PUSHINT	//  query_id s_addr src_addr vset _49=-1
+        -1 PUSHINT	//  query_id s_addr src_addr vset _46=-1
       }>ELSE<{	//  query_id s_addr src_addr vset elector_param
-        CTOS	//  query_id s_addr src_addr vset _51
-        256 PLDU	//  query_id s_addr src_addr vset _49
+        CTOS	//  query_id s_addr src_addr vset _48
+        256 PLDU	//  query_id s_addr src_addr vset _46
       }>	//  query_id s_addr src_addr vset elector_addr
       s0 s2 XCHG
       FALSE
       s0 s3 XCHG	//  query_id s_addr ok vset src_addr elector_addr
-      EQUAL	//  query_id s_addr ok vset _56
+      EQUAL	//  query_id s_addr ok vset _53
       IF:<{	//  query_id s_addr ok vset
         NIP	//  query_id s_addr vset
         DUP	//  query_id s_addr vset vset
         check_validator_set CALLDICT	//  query_id s_addr vset t_since t_until
         OVER
         NOW	//  query_id s_addr vset t_since t_until t_since t
-        GREATER	//  query_id s_addr vset t_since t_until _62
-        s0 s2 XCHG	//  query_id s_addr vset _62 t_until t_since
-        GREATER	//  query_id s_addr vset _62 _63
+        GREATER	//  query_id s_addr vset t_since t_until _59
+        s0 s2 XCHG	//  query_id s_addr vset _59 t_until t_since
+        GREATER	//  query_id s_addr vset _59 _60
         AND	//  query_id s_addr vset ok
         SWAP	//  query_id s_addr ok vset
       }>	//  query_id s_addr ok vset
       SWAP	//  query_id s_addr vset ok
       IFJMP:<{	//  query_id s_addr vset
-        36 PUSHINT	//  query_id s_addr vset _65=36
-        SWAP	//  query_id s_addr _65=36 vset
+        36 PUSHINT	//  query_id s_addr vset _62=36
+        SWAP	//  query_id s_addr _62=36 vset
         set_conf_param CALLDICT
         SWAP
-        4000730955 PUSHINT	//  s_addr query_id _67=4000730955
+        4000730955 PUSHINT	//  s_addr query_id _64=4000730955
         send_confirmation INLINECALLDICT
       }>	//  query_id s_addr vset
       DROP	//  query_id s_addr
       SWAP
-      4000730991 PUSHINT	//  s_addr query_id _69=4000730991
+      4000730991 PUSHINT	//  s_addr query_id _66=4000730991
       send_error INLINECALLDICT
     }>	//  msg_value s_addr src_addr tag query_id in_msg
     s3 POP	//  msg_value s_addr in_msg tag query_id
     OVER
-    1849906028 PUSHINT	//  msg_value s_addr in_msg tag query_id tag _71=1849906028
-    EQUAL	//  msg_value s_addr in_msg tag query_id _72
+    1849906028 PUSHINT	//  msg_value s_addr in_msg tag query_id tag _68=1849906028
+    EQUAL	//  msg_value s_addr in_msg tag query_id _69
     IFJMP:<{	//  msg_value s_addr in_msg tag query_id
       NIP
       s3 POP	//  query_id s_addr in_msg
@@ -1042,52 +1038,47 @@ PROGRAM{
       LDMSGADDR	//  query_id s_addr value index receiver_address in_msg
       ENDS
       s2 PUSH	//  query_id s_addr value index receiver_address value
-      XCTOS	//  query_id s_addr value index receiver_address _198 _199
+      XCTOS	//  query_id s_addr value index receiver_address _192 _193
       NIP	//  query_id s_addr value index receiver_address exotic
       s3 PUSH	//  query_id s_addr value index receiver_address exotic value
       CDEPTH	//  query_id s_addr value index receiver_address exotic depth
       s2 PUSH	//  query_id s_addr value index receiver_address exotic depth receiver_address
-      REWRITESTDADDR	//  query_id s_addr value index receiver_address exotic depth _200 _201
+      REWRITESTDADDR	//  query_id s_addr value index receiver_address exotic depth _194 _195
       2DROP	//  query_id s_addr value index receiver_address exotic depth
       SWAP	//  query_id s_addr value index receiver_address depth exotic
-      0 EQINT	//  query_id s_addr value index receiver_address depth _95
-      SWAP	//  query_id s_addr value index receiver_address _95 depth
-      0 EQINT	//  query_id s_addr value index receiver_address _95 _97
-      AND	//  query_id s_addr value index receiver_address _98
+      0 EQINT	//  query_id s_addr value index receiver_address depth _92
+      SWAP	//  query_id s_addr value index receiver_address _92 depth
+      0 EQINT	//  query_id s_addr value index receiver_address _92 _94
+      AND	//  query_id s_addr value index receiver_address _95
       s2 PUSH
-      10 PUSHNEGPOW2	//  query_id s_addr value index receiver_address _98 index _99=-1024
-      EQUAL	//  query_id s_addr value index receiver_address _98 _100
-      s5 PUSH
-      x{9FE6666666666666666666666666666666666666666666666666666666666666667_} PUSHSLICE	//  query_id s_addr value index receiver_address _98 _100 s_addr _101
-      SDEQ	//  query_id s_addr value index receiver_address _98 _100 _102
-      AND	//  query_id s_addr value index receiver_address _98 _103
+      10 PUSHNEGPOW2	//  query_id s_addr value index receiver_address _95 index _96=-1024
+      EQUAL	//  query_id s_addr value index receiver_address _95 _97
       s3 PUSH
-      -1025 PUSHINT	//  query_id s_addr value index receiver_address _98 _103 index _104=-1025
-      EQUAL	//  query_id s_addr value index receiver_address _98 _103 _105
-      s0 s6 XCHG
-      x{9FEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB_} PUSHSLICE	//  query_id _105 value index receiver_address _98 _103 s_addr _106
-      SDEQ	//  query_id _105 value index receiver_address _98 _103 _107
-      s1 s6 XCHG	//  query_id _103 value index receiver_address _98 _105 _107
-      AND	//  query_id _103 value index receiver_address _98 _108
-      s1 s5 XCHG	//  query_id _98 value index receiver_address _103 _108
-      OR	//  query_id _98 value index receiver_address _109
-      s1 s4 XCHG	//  query_id receiver_address value index _98 _109
-      AND	//  query_id receiver_address value index _110
+      -1025 PUSHINT	//  query_id s_addr value index receiver_address _95 _97 index _98=-1025
+      EQUAL	//  query_id s_addr value index receiver_address _95 _97 _99
+      OR	//  query_id s_addr value index receiver_address _95 _100
+      s0 s5 XCHG
+      x{9FE6666666666666666666666666666666666666666666666666666666666666667_} PUSHSLICE	//  query_id _100 value index receiver_address _95 s_addr _101
+      SDEQ	//  query_id _100 value index receiver_address _95 _102
+      s1 s5 XCHG	//  query_id _95 value index receiver_address _100 _102
+      AND	//  query_id _95 value index receiver_address _103
+      s1 s4 XCHG	//  query_id receiver_address value index _95 _103
+      AND	//  query_id receiver_address value index _104
       IFJMP:<{	//  query_id receiver_address value index
         SWAP	//  query_id receiver_address index value
         set_conf_param CALLDICT
         SWAP
-        4017508171 PUSHINT	//  receiver_address query_id _112=4017508171
+        4017508171 PUSHINT	//  receiver_address query_id _106=4017508171
         send_confirmation INLINECALLDICT
       }>	//  query_id receiver_address value index
       2DROP	//  query_id receiver_address
       SWAP
-      4017508207 PUSHINT	//  receiver_address query_id _114=4017508207
+      4017508207 PUSHINT	//  receiver_address query_id _108=4017508207
       send_error INLINECALLDICT
     }>	//  msg_value s_addr in_msg tag query_id
     OVER
-    1851150418 PUSHINT	//  msg_value s_addr in_msg tag query_id tag _116=1851150418
-    EQUAL	//  msg_value s_addr in_msg tag query_id _117
+    1851150418 PUSHINT	//  msg_value s_addr in_msg tag query_id tag _110=1851150418
+    EQUAL	//  msg_value s_addr in_msg tag query_id _111
     IFJMP:<{	//  msg_value s_addr in_msg tag query_id
       NIP	//  msg_value s_addr in_msg query_id
       s0 s3 XCHG	//  query_id s_addr in_msg msg_value
@@ -1096,10 +1087,10 @@ PROGRAM{
       OVER	//  query_id s_addr price mode=64 price
       NEGATE	//  query_id s_addr price mode=64 ans_tag
       s2 PUSH	//  query_id s_addr price mode=64 ans_tag price
-      -1 GTINT	//  query_id s_addr price mode=64 ans_tag _125
+      -1 GTINT	//  query_id s_addr price mode=64 ans_tag _119
       IF:<{	//  query_id s_addr price mode=64 ans_tag
         2DROP	//  query_id s_addr price
-        4 PUSHINT	//  query_id s_addr price _126=4
+        4 PUSHINT	//  query_id s_addr price _120=4
         RAWRESERVE
         3998634066 PUSHINT	//  query_id s_addr ans_tag=3998634066
         7 PUSHPOW2	//  query_id s_addr ans_tag=3998634066 mode=128
@@ -1111,42 +1102,42 @@ PROGRAM{
     }>	//  msg_value s_addr in_msg tag query_id
     s4 POP	//  query_id s_addr in_msg tag
     DUP
-    1450144869 PUSHINT	//  query_id s_addr in_msg tag tag _131=1450144869
-    EQUAL	//  query_id s_addr in_msg tag _132
+    1450144869 PUSHINT	//  query_id s_addr in_msg tag tag _125=1450144869
+    EQUAL	//  query_id s_addr in_msg tag _126
     IFJMP:<{	//  query_id s_addr in_msg tag
       DROP	//  query_id s_addr in_msg
-      9 PUSHPOW2	//  query_id s_addr in_msg _135=512
+      9 PUSHPOW2	//  query_id s_addr in_msg _129=512
       LDSLICEX	//  query_id s_addr signature in_msg
       DUP	//  query_id s_addr signature msg_body in_msg
-      32 LDU	//  query_id s_addr signature msg_body _141 in_msg
-      16 LDU	//  query_id s_addr signature msg_body _141 _144 in_msg
+      32 LDU	//  query_id s_addr signature msg_body _135 in_msg
+      16 LDU	//  query_id s_addr signature msg_body _135 _138 in_msg
       256 LDU	//  query_id s_addr signature msg_body sign_tag idx phash in_msg
       ENDS
       s0 s2 XCHG
-      1450144837 PUSHINT	//  query_id s_addr signature msg_body phash idx sign_tag _152=1450144837
-      EQUAL	//  query_id s_addr signature msg_body phash idx _153
+      1450144837 PUSHINT	//  query_id s_addr signature msg_body phash idx sign_tag _146=1450144837
+      EQUAL	//  query_id s_addr signature msg_body phash idx _147
       37 THROWIFNOT
       DUP	//  query_id s_addr signature msg_body phash idx idx
-      get_validator_descr INLINECALLDICT	//  query_id s_addr signature msg_body phash idx _210 _211
+      get_validator_descr INLINECALLDICT	//  query_id s_addr signature msg_body phash idx _204 _205
       DROP	//  query_id s_addr signature msg_body phash idx vdescr
       unpack_validator_descr INLINECALLDICT	//  query_id s_addr signature msg_body phash idx val_pubkey weight
       s4 s5 s5 XCHG3	//  query_id s_addr weight idx phash msg_body signature val_pubkey
-      CHKSIGNS	//  query_id s_addr weight idx phash _162
+      CHKSIGNS	//  query_id s_addr weight idx phash _156
       34 THROWIFNOT
       s0 s2 XCHG	//  query_id s_addr phash idx weight
       proceed_register_vote INLINECALLDICT	//  query_id s_addr res
-      3597947456 PUSHINT	//  query_id s_addr res _166=3597947456
-      ADD	//  query_id s_addr _167
-      s1 s2 XCHG	//  s_addr query_id _167
+      3597947456 PUSHINT	//  query_id s_addr res _160=3597947456
+      ADD	//  query_id s_addr _161
+      s1 s2 XCHG	//  s_addr query_id _161
       send_confirmation INLINECALLDICT
     }>	//  query_id s_addr in_msg tag
     3 1 BLKDROP2	//  tag
     DUP	//  tag tag
-    0 EQINT	//  tag _171
+    0 EQINT	//  tag _165
     SWAP
-    31 PUSHPOW2	//  _171 tag _174
-    AND	//  _171 _175
-    OR	//  _176
+    31 PUSHPOW2	//  _165 tag _168
+    AND	//  _165 _169
+    OR	//  _170
     37 THROWIFNOT
   }>
   recv_external PROC:<{

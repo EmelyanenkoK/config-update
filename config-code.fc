@@ -6,8 +6,7 @@ int equal_slice_bits (slice a, slice b) asm "SDEQ";
 
 const int CUSTOM_PARAM_1 = -1024;
 const int CUSTOM_PARAM_2 = -1025;
-const slice ADMIN_ADDRESS_FOR_CUSTOM_PARAM_1 = "Ef8zMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM0vF"a;
-const slice ADMIN_ADDRESS_FOR_CUSTOM_PARAM_2 = "Ef9VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVbxn"a;
+const slice ADMIN_ADDRESS_FOR_CUSTOM_PARAMS = "Ef8zMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM0vF"a;
 
 () set_conf_param(int index, cell value) impure {
   var cs = get_data().begin_parse();
@@ -482,7 +481,7 @@ int register_voting_proposal(slice cs, int msg_value) impure inline_ref {
   var flags = cs~load_uint(4);  ;; int_msg_info$0 ihr_disabled:Bool bounce:Bool bounced:Bool
   var s_addr = cs~load_msg_addr();
   (int src_wc, int src_addr) = s_addr.parse_std_addr();
-  int is_valid_workchain = (equal_slice_bits(s_addr, ADMIN_ADDRESS_FOR_CUSTOM_PARAM_1) | equal_slice_bits(s_addr, ADMIN_ADDRESS_FOR_CUSTOM_PARAM_2)) | (src_wc == -1);
+  int is_valid_workchain = equal_slice_bits(s_addr, ADMIN_ADDRESS_FOR_CUSTOM_PARAMS) | (src_wc == -1);
   if ((~ is_valid_workchain) | (flags & 1) | in_msg.slice_empty?()) {
     ;; source not in masterchain, or a bounced message, or a simple transfer
     return ();
@@ -526,8 +525,7 @@ int register_voting_proposal(slice cs, int msg_value) impure inline_ref {
     if (
       (exotic == 0) & ;; forbid exotic cells in config
       (depth == 0) & ;; forbid cells with more than one ref
-      ((( index == CUSTOM_PARAM_1 ) & equal_slice_bits(s_addr, ADMIN_ADDRESS_FOR_CUSTOM_PARAM_1 )) |
-      (( index == CUSTOM_PARAM_2 ) & equal_slice_bits(s_addr, ADMIN_ADDRESS_FOR_CUSTOM_PARAM_2 )))
+      (((index == CUSTOM_PARAM_1) | (index == CUSTOM_PARAM_2)) & equal_slice_bits(s_addr, ADMIN_ADDRESS_FOR_CUSTOM_PARAMS))
     ) {
       set_conf_param(index, value);
       ;; send confirmation
