@@ -10,7 +10,7 @@ import {
 } from '@ton/sandbox';
 
 import { compile, libraryCellFromCode, sleep } from '@ton/blueprint';
-import { Address, beginCell, Cell, Dictionary, internal as internal_relaxed, SendMode, toNano, Transaction } from '@ton/core';
+import { Address, beginCell, Cell, Dictionary, ExternalAddress, internal as internal_relaxed, SendMode, toNano, Transaction } from '@ton/core';
 import '@ton/test-utils';
 import { Op } from '../wrappers/Constants';
 import { randomAddress } from '@ton/test-utils';
@@ -201,10 +201,31 @@ describe('Config custom slot', () => {
             await assertParamSet(testSlot, testCell);
         }
     });
-    it('should be able to set custom slot when response address is not provided', async () => {
+    it('should bounce set_custom_slot when response address is not standard', async () => {
         const testCell = beginCell().storeStringTail("Hop hey La La Ley").endCell();
-        for(let slot of customSlots) {
-            const setSlotMsg = Config.setCustomSlotMessage(slot, testCell, null);
+        let testCases  = [null, new ExternalAddress(42n, 256)] as unknown as Address[];
+        const testPayloads: Cell[] = [];
+
+        /*
+         * addr_var$11 anycast:(Maybe Anycast) addr_len:(## 9)
+         * workchain_id:int32 address:(bits addr_len) = MsgAddressInt;
+         */
+
+        customSlots.forEach(slot => {
+            const varAddressPayload = beginCell()
+                                        .storeUint(Op.setCustomSlot, 32)
+                                        .storeUint(0, 64) // queryId
+                                        .storeInt(slot, 32) // param_id
+                                        .storeUint(0b110, 3) // var_addr tag + no anycast
+                                        .storeUint(256, 9) // addr_len
+                                        .storeUint(0, 32) // workchain
+                                        .storeUint(42n, 256) // Address
+                                        .storeRef(testCell)
+                                    .endCell();
+            testPayloads.push(...testCases.map(a => Config.setCustomSlotMessage(slot, testCell, a)), varAddressPayload);
+        });
+
+        for(let setSlotMsg of testPayloads ) {
 
             const res = await blockchain.sendMessage(internal({
                 to: configContract.address,
@@ -216,10 +237,14 @@ describe('Config custom slot', () => {
             expect(res.transactions).toHaveTransaction({
                 on: configContract.address,
                 op: Op.setCustomSlot,
-                aborted: false
+                aborted: true,
+                outMessagesCount: 1 // Should bounce
             });
-
-            await assertParamSet(slot, testCell);
+            expect(res.transactions).toHaveTransaction({
+                on: customSlotAdmin,
+                from: configContract.address,
+                inMessageBounced: true
+            });
         }
     });
     it('should not allow more than single cell for custom slot', async () => {
