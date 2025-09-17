@@ -407,8 +407,8 @@ describe('Config custom slot', () => {
         const testCell = beginCell().storeStringTail("Hop hey La La Ley").endCell();
 
         let rndParams = [
-            new Array(5).fill(0).map(p => getRandomInt(10, 81)),
-            new Array(5).fill(0).map(p => getRandomInt(-1023, -1)),
+            [...new Set(new Array(5).fill(0).map(p => getRandomInt(10, 81)))],
+            [...new Set(new Array(5).fill(0).map(p => getRandomInt(-1023, -1)))],
             -94
         ].flat();
 
