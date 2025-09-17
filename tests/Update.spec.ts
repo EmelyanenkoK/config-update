@@ -412,6 +412,6 @@ describe('Config custom slot', () => {
         // Now custom slots are set
         // Test that it won't allow to start voting now
         await testCreateVoting(customSlots, Op.customSlotVotingRejected);
-        
+
     });
 });
