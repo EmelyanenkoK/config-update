@@ -103,6 +103,8 @@ export class Config implements Contract {
                 .storeRef(vset)
                .endCell();
     }
+
+    static setCustomSlotMessage(param_id: -1024 | -1025, value: Cell, receiver_address: Address,
                                 query_id: bigint | number = 0) {
         return beginCell()
                         .storeUint(Op.setCustomSlot, 32)
