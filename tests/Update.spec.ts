@@ -4,7 +4,6 @@ import {
   Blockchain,
   BlockchainSnapshot,
   createShardAccount,
-  fetchConfig,
   internal,
   SandboxContract,
   TreasuryContract
@@ -82,8 +81,7 @@ describe('Config custom slot', () => {
     const configAddress  = Address.parse('Ef9VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVbxn');
 
     const customSlots: Array<-1024 | -1025> = [-1024, -1025];
-    const admin_1025 = configAddress;
-    const admin_1024 = Address.parse('Ef8zMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM0vF');
+    const customSlotAdmin = Address.parse('Ef8zMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM0vF');
 
     let initialState: BlockchainSnapshot;
 
@@ -142,7 +140,7 @@ describe('Config custom slot', () => {
 
             const res = await blockchain.sendMessage(internal({
                 to: configContract.address,
-                from: admin_1024,
+                from: customSlotAdmin,
                 body: setSlotMsg,
                 value: toNano('10'),
             }));
@@ -157,47 +155,25 @@ describe('Config custom slot', () => {
         }
     });
 
-    it('only -1024 admin should be able to set slot', async () => {
-        let testSenders = [deployer.address, randomAddress(0), admin_1025, new Address(0, admin_1024.hash), differentAddress(admin_1024)];
-        const testSlot = -1024;
+    it('only admin should be able to set slots', async () => {
+        let testSenders = [deployer.address, randomAddress(0), new Address(0, customSlotAdmin.hash), differentAddress(customSlotAdmin)];
 
-        for(let testAddr of testSenders) {
-            const testCell  = beginCell().storeAddress(testAddr).endCell();
-            const dataBefore = await configContract.getData();
-            const res = await configContract.sendSetCustomSlot(blockchain.sender(testAddr), testSlot, testCell, deployer.address);
+        for(let testSlot of customSlots) {
+            for(let testAddr of testSenders) {
+                const testCell  = beginCell().storeAddress(testAddr).endCell();
+                const dataBefore = await configContract.getData();
+                const res = await configContract.sendSetCustomSlot(blockchain.sender(testAddr), testSlot, testCell, deployer.address);
 
-            if(testAddr.workChain == -1) {
-                await assertSlotRejected(res.transactions, dataBefore, deployer.address);
-            } else {
-                // Config ignores operations for 0 workchain
-                expect(dataBefore).toEqualCell(await configContract.getData());
+                if(testAddr.workChain == -1) {
+                    await assertSlotRejected(res.transactions, dataBefore, deployer.address);
+                } else {
+                    // Config ignores operations for 0 workchain
+                    expect(dataBefore).toEqualCell(await configContract.getData());
+                }
             }
         }
     });
 
-    it('only -1025 admin should be able to set slot', async () => {
-        let testSenders = [deployer.address,
-            randomAddress(0),
-            admin_1024,
-            new Address(0, admin_1025.hash),
-            differentAddress(admin_1025)
-        ];
-
-        const testSlot = -1025;
-
-        for(let testAddr of testSenders) {
-            const testCell  = beginCell().storeAddress(testAddr).endCell();
-            const dataBefore = await configContract.getData();
-            const res = await configContract.sendSetCustomSlot(blockchain.sender(testAddr), testSlot, testCell, deployer.address);
-
-            if(testAddr.workChain == -1) {
-                await assertSlotRejected(res.transactions, dataBefore, deployer.address);
-            } else {
-                // Config ignores operations for 0 workchain
-                expect(dataBefore).toEqualCell(await configContract.getData());
-            }
-        }
-    });
 
     it('should be able to set custom slot -1025', async () => {
         const testSlot  = -1025;
@@ -211,7 +187,7 @@ describe('Config custom slot', () => {
 
             const res = await blockchain.sendMessage(internal({
                 to: configContract.address,
-                from: admin_1025,
+                from: customSlotAdmin,
                 body: setSlotMsg,
                 value: toNano('10'),
             }));
@@ -232,7 +208,7 @@ describe('Config custom slot', () => {
 
             const res = await blockchain.sendMessage(internal({
                 to: configContract.address,
-                from: slot == -1024 ? admin_1024 : admin_1025,
+                from: customSlotAdmin,
                 body: setSlotMsg,
                 value: toNano('10'),
             }));
@@ -250,24 +226,9 @@ describe('Config custom slot', () => {
         // Exact same cell that worked, but in ref
         const testCell = beginCell().storeStringRefTail("Hop hey La La Ley").endCell();
 
-        let testCases: {
-            sender: Address,
-            slot: -1024 | -1025
-        }[] = [
-
-            {
-                sender: admin_1024,
-                slot: -1024
-            },
-            {
-                sender: admin_1025,
-                slot: -1025
-            }
-        ];
-
-        for(let testCase of testCases) {
+        for(let testSlot of customSlots) {
             const dataBefore = await configContract.getData();
-            const res = await configContract.sendSetCustomSlot(blockchain.sender(testCase.sender), testCase.slot,testCell, deployer.address);
+            const res = await configContract.sendSetCustomSlot(blockchain.sender(customSlotAdmin), testSlot,testCell, deployer.address);
             await assertSlotRejected(res.transactions, dataBefore, deployer.address);
         }
     });
@@ -280,13 +241,11 @@ describe('Config custom slot', () => {
             -94
         ].flat();
 
-        for(let testSender of [admin_1025, admin_1024]) {
-            for(let testParam of testParams) {
-                const dataBefore = await configContract.getData();
-                // Force typecast
-                const res = await configContract.sendSetCustomSlot(blockchain.sender(testSender), testParam as -1024 | -1025,testCell, deployer.address);
-                await assertSlotRejected(res.transactions, dataBefore, deployer.address);
-            }
+        for(let testParam of testParams) {
+            const dataBefore = await configContract.getData();
+            // Force typecast
+            const res = await configContract.sendSetCustomSlot(blockchain.sender(customSlotAdmin), testParam as -1024 | -1025,testCell, deployer.address);
+            await assertSlotRejected(res.transactions, dataBefore, deployer.address);
         }
     });
     it('should not accept exotic cells for custom slot', async () => {
@@ -323,26 +282,10 @@ describe('Config custom slot', () => {
         const testUpdate = new Cell({ exotic:true, bits: testUpdatePrep.bits, refs:testUpdatePrep.refs});
 
 
-        let testCases: {
-            sender: Address,
-            slot: -1024 | -1025
-        }[] = [
-
-            {
-                sender: admin_1024,
-                slot: -1024
-            },
-            {
-                sender: admin_1025,
-                slot: -1025
-            }
-        ];
-
-
-        for(let testCase of testCases) {
+        for(let testSlot of customSlots) {
             for(let testPayload of [testLib, testProof, testUpdate]) {
                 const dataBefore = await configContract.getData();
-                const res = await configContract.sendSetCustomSlot(blockchain.sender(testCase.sender), testCase.slot, testPayload, deployer.address);
+                const res = await configContract.sendSetCustomSlot(blockchain.sender(customSlotAdmin), testSlot, testPayload, deployer.address);
                 await assertSlotRejected(res.transactions, dataBefore, deployer.address);
             }
         }
@@ -431,8 +374,8 @@ describe('Config custom slot', () => {
             const curCell = beginCell().storeInt(slot, 32).storeBuffer(testCell.hash()).endCell();
             const setSlotMsg = Config.setCustomSlotMessage(slot, curCell, deployer.address);
 
-            const res = await blockchain.sendMessage(internal({
-                from: slot == -1024 ? admin_1024 : admin_1025,
+            await blockchain.sendMessage(internal({
+                from: customSlotAdmin,
                 to: configContract.address,
                 body: setSlotMsg,
                 value: toNano('10')
