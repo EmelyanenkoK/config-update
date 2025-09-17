@@ -81,7 +81,7 @@ describe('Config custom slot', () => {
     const configAddress  = Address.parse('Ef9VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVbxn');
 
     const customSlots: Array<-1024 | -1025> = [-1024, -1025];
-    const customSlotAdmin = Address.parse('Ef8zMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM0vF');
+    const customSlotAdmin = Address.parse("EQAzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM7SN");
 
     let initialState: BlockchainSnapshot;
 
@@ -156,7 +156,7 @@ describe('Config custom slot', () => {
     });
 
     it('only admin should be able to set slots', async () => {
-        let testSenders = [deployer.address, randomAddress(0), new Address(0, customSlotAdmin.hash), differentAddress(customSlotAdmin)];
+        let testSenders = [deployer.address, randomAddress(0), new Address(-1, customSlotAdmin.hash), differentAddress(customSlotAdmin)];
 
         for(let testSlot of customSlots) {
             for(let testAddr of testSenders) {
