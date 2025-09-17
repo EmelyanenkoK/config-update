@@ -13,7 +13,8 @@ import { compile, libraryCellFromCode, sleep } from '@ton/blueprint';
 import { Address, beginCell, Cell, Dictionary, ExternalAddress, internal as internal_relaxed, SendMode, toNano, Transaction } from '@ton/core';
 import '@ton/test-utils';
 import { Op } from '../wrappers/Constants';
-import { randomAddress } from '@ton/test-utils';
+import { findTransactionRequired, randomAddress } from '@ton/test-utils';
+import { getVset, packValidatorsSet } from '../wrappers/ValidatorUtils';
 
 async function fetchConfigState(address: Address, retryCount:number = 5) {
     do {
@@ -78,7 +79,13 @@ describe('Config custom slot', () => {
     let configCode: Cell;
     let deployer: SandboxContract<TreasuryContract>;
 
+    let oldCodeSnap: BlockchainSnapshot;
+
+    const electorAddress = Address.parse('Ef8zMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM0vF');
     const configAddress  = Address.parse('Ef9VVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVVbxn');
+    // Trust me
+    let configOldCode =  Cell.fromBase64("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");
+
 
     const customSlots: Array<-1024 | -1025> = [-1024, -1025];
     const customSlotAdmin = Address.parse("EQAzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM7SN");
@@ -88,10 +95,18 @@ describe('Config custom slot', () => {
     let assertSlotRejected: (txs: Transaction[], dataBefore: Cell, resp: Address) => Promise<void>;
     let assertParamSet: (paramId: number, data: Cell) => Promise<void>;
 
+    let voteOut: (propHash: Buffer, critical: boolean, codeUpgrade: boolean) => Promise<void>;
+
     beforeAll(async () => {
         blockchain = await Blockchain.create();
 
-        const configData = await fetchConfigState(configAddress);
+        const configDs = (await fetchConfigState(configAddress)).beginParse();
+        const configData = beginCell()
+                            .storeRef(configDs.loadRef()) // Actual config
+                            .storeBits(configDs.loadBits(32 + 256)) // seqno + pubkey
+                            .storeMaybeRef(null) // Clear the vote dictionary
+                           .endCell();
+
         configCode = await compile('Config');
 
         blockchain.setConfig(configData.refs[0]);
@@ -122,6 +137,78 @@ describe('Config custom slot', () => {
             const curConfig = await configContract.getConfig();
             expect(curConfig.get(paramId)).toEqualCell(data);
         }
+
+        voteOut = async (propHash, critical, codeUpgrade) => {
+           const configSmc = await blockchain.getContract(configAddress);
+           const curVset = getVset(await configContract.getConfig(), 34);
+           const weightThreshold =  curVset.total_weight * 3n / 4n;
+
+           const criticalNum = Number(critical);
+           let propAccepted = false;
+           let minWins = 2 + criticalNum;
+           let winCount = 0;
+
+           do {
+               let weightRemaining = weightThreshold;
+               for(let i = 0; i < curVset.total; i++) {
+                   const res = await blockchain.sendMessage(internal({
+                       from: deployer.address,
+                       to: configAddress,
+                       body: Config.mockVoteMessage(i, propHash),
+                       value: toNano('100')
+                   }), {ignoreChksig: true}); // Skip check sign
+
+                   weightRemaining -= curVset.list[i].weight;
+
+                   // Duh, code upgrade drops action phase
+                   if(!(codeUpgrade && minWins - winCount == 1 && weightRemaining <= 0)) {
+                       const voteTx = findTransactionRequired(res.transactions, {
+                           on: deployer.address,
+                           from: configAddress,
+                           op: (op) => op == Op.voteProcessed + 2 || op == Op.voteProcessed + 6 + Number(critical) // Processed successfully
+                       });
+                       if(voteTx.inMessage!.body.beginParse().preloadUint(32) == Op.voteProcessed + 6 + Number(critical)) {
+                           winCount++;
+                       }
+                   } else {
+                       // console.log("Ops, special case for last vote of the codeUpdate");
+                       // console.log(res.transactions[0].vmLogs);
+                       winCount++;
+                   }
+
+                   propAccepted = winCount == minWins;
+
+                   if(propAccepted) {
+                       // Expect to clear the proposal
+                       expect(await configContract.getProposal(propHash)).toBeNull();
+                       return;
+                   } else if(weightRemaining <= 0n) {
+                       winCount++;
+                       if(!blockchain.now) {
+                           blockchain.now = Math.floor(Date.now() / 1000);
+                       }
+                       const newVset = packValidatorsSet({...curVset, utime_since: blockchain.now + 100, utime_unitl: blockchain.now + 100 + 65536});
+                       const res = await blockchain.sendMessage(internal({
+                           from: electorAddress,
+                           to: configAddress,
+                           body: Config.newVsetMessage(newVset),
+                           value: toNano('10')
+                       }));
+                       expect(res.transactions).toHaveTransaction({
+                           on: electorAddress,
+                           from: configAddress,
+                           op: Op.validatorsSetAccepted
+                       });
+                       blockchain.now += 1000;
+                       await configSmc.runTickTock('tick');
+                       const curSet = (await configContract.getConfig()).get(34);
+                       expect(curSet).toEqualCell(newVset);
+                       blockchain.setConfig((await configContract.getData()).refs[0]);
+                       break;
+                   }
+               }
+           } while(true);
+       };
 
         initialState = blockchain.snapshot();
     });
@@ -413,5 +500,167 @@ describe('Config custom slot', () => {
         // Test that it won't allow to start voting now
         await testCreateVoting(customSlots, Op.customSlotVotingRejected);
 
+    });
+    it('check that votes work', async () => {
+
+       const updateValue = beginCell().storeRef(configOldCode).endCell();
+
+       const codeProposal = Config.newVotingProposalMessage({
+                    expire_at: Math.floor(Date.now() / 1000) + 3600 * 24 * 60,
+                    critical: true,
+                    param_id: -1000,
+                    value: updateValue,
+                    cur_hash: Buffer.alloc(32)
+       });
+
+       let propHash = codeProposal.refs[0].hash();
+
+       expect(await configContract.getProposal(propHash)).toBeNull();
+
+       let res = await deployer.send({
+           to: configContract.address,
+           value: toNano('1000'),
+           body: codeProposal,
+           sendMode: SendMode.PAY_GAS_SEPARATELY
+       });
+
+       expect(res.transactions).toHaveTransaction({
+           on: deployer.address,
+           from: configContract.address,
+           op: Op.newVotingCreated
+       });
+
+
+       expect(await configContract.getProposal(propHash)).not.toBeNull();
+       const newProp  = await configContract.getProposal(propHash);
+       expect(newProp).not.toBeNull();
+       expect(newProp!.value).toEqualCell(updateValue);
+
+
+       const stateBefore = await configContract.getState();
+       expect(stateBefore.code!).not.toEqualCell(configOldCode);
+
+       await voteOut(propHash, true, true);
+
+       const stateAfter = await configContract.getState();
+       expect(stateAfter.code!).toEqualCell(configOldCode);
+       oldCodeSnap = blockchain.snapshot();
+
+       // Just for kicks let's vote for some other parameter
+
+       await blockchain.loadFrom(initialState);
+       const testCell = beginCell().storeStringTail("Test Cell").storeUint(Math.floor(Date.now() / 1000), 32).endCell();
+
+       const testPropMsg = Config.newVotingProposalMessage({
+                    expire_at: Math.floor(Date.now() / 1000) + 3600 * 24 * 60,
+                    critical: false,
+                    param_id: -42,
+                    value: testCell,
+                    cur_hash: Buffer.alloc(32)
+       });
+
+       propHash = testPropMsg.refs[0].hash();
+
+       expect(await configContract.getProposal(propHash)).toBeNull();
+
+       res = await deployer.send({
+           to: configContract.address,
+           value: toNano('1000'),
+           body: testPropMsg,
+           sendMode: SendMode.PAY_GAS_SEPARATELY
+       });
+
+       expect(await configContract.getProposal(propHash)).not.toBeNull();
+
+       await voteOut(propHash, false, false);
+
+       await assertParamSet(-42, testCell);
+    });
+    it('test that proposal for parameters -1024 -1025 can\'t be accepted', async () => {
+
+        // First let's load from the old code
+        blockchain.setShardAccount(configAddress, createShardAccount({
+            address: configAddress,
+            code: configOldCode,
+            data: await configContract.getData(),
+            balance: toNano('10000')
+        }));
+
+        const testCell = beginCell().storeStringTail("Hop hey!").endCell();
+        const origCell = beginCell().storeStringTail("Hop hey La La Ley!").endCell();
+
+        const codeProposalMsg = Config.newVotingProposalMessage({
+                     expire_at: Math.floor(Date.now() / 1000) + 3600 * 24 * 60,
+                     critical: true,
+                     param_id: -1000,
+                     value: beginCell().storeRef(configCode).endCell(),
+                     cur_hash: Buffer.alloc(32)
+        });
+
+
+        const slotProposals = customSlots.map(s => Config.newVotingProposalMessage({
+                     expire_at: Math.floor(Date.now() / 1000) + 3600 * 24 * 60,
+                     critical: false,
+                     param_id: s,
+                     value: testCell,
+                     cur_hash: Buffer.alloc(32)
+                 })
+        );
+
+        // First create votings for proposals
+        for (let propMsg of [...slotProposals, codeProposalMsg]) {
+            expect(await configContract.getProposal(propMsg.refs[0].hash())).toBeNull();
+
+            const res = await deployer.send({
+                to: configContract.address,
+                value: toNano('1000'),
+                body: propMsg,
+                sendMode: SendMode.PAY_GAS_SEPARATELY
+            });
+
+            expect(await configContract.getProposal(propMsg.refs[0].hash())).not.toBeNull();
+
+            expect(res.transactions).toHaveTransaction({
+                on: deployer.address,
+                from: configContract.address,
+                op: Op.newVotingCreated
+            });
+        }
+
+        // Now let's vote for the code upgrade
+        let propHash = codeProposalMsg.refs[0].hash();
+
+        // Upgrading from old code to the new one
+        await voteOut(propHash, true, true);
+
+        expect((await configContract.getState()).code!).toEqualCell(configCode);
+        expect(await configContract.getProposal(propHash)).toBeNull();
+
+        // Now let's say customProps were used
+        // Self check
+        expect(origCell).not.toEqualCell(testCell);
+
+        for(let updateSlot of customSlots) {
+            await configContract.sendSetCustomSlot(blockchain.sender(customSlotAdmin), updateSlot, origCell, deployer.address)
+            await assertParamSet(updateSlot, origCell);
+        }
+
+        for(let i = 0; i < slotProposals.length; i++) {
+            const slotProp = slotProposals[i];
+            let curConfig = await configContract.getConfig();
+            const slotBefore = curConfig.get(customSlots[i]);
+            expect(slotBefore).toEqualCell(origCell);
+            propHash = slotProp.refs[0].hash();
+
+            // Run the vote
+            await voteOut(propHash, false, false);
+            // Proposal should be removed
+            expect(await configContract.getProposal(propHash)).toBeNull();
+
+            // But slots shouldn't change
+            curConfig = await configContract.getConfig();
+            const slotAfter = curConfig.get(customSlots[i])!;
+            expect(slotAfter).toEqualCell(slotBefore!);
+        }
     });
 });
