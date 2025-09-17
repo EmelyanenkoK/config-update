@@ -1,5 +1,5 @@
 import { Op } from './Constants';
-import { Address, beginCell, Cell, Contract, ContractProvider, Dictionary, Sender, SendMode, toNano} from "@ton/core";
+import { Address, beginCell, Cell, Contract, ContractProvider, Dictionary, Sender, SendMode, Slice, toNano} from "@ton/core";
 
 export class Config implements Contract {
     constructor(readonly address: Address,readonly init?: { code: Cell; data: Cell}){}
@@ -34,7 +34,22 @@ export class Config implements Contract {
     async getProposal(provider: ContractProvider, prop_hash: Buffer | bigint) {
         const prop = Buffer.isBuffer(prop_hash) ? BigInt('0x' + prop_hash.toString('hex')) : prop_hash;
         const { stack } = await provider.get('get_proposal', [{ type: 'int', value: prop}]);
-        return stack.readTupleOpt();
+        const propTuple = stack.readTupleOpt();
+
+        if(propTuple == null) {
+            return propTuple;
+        }
+        const expires = propTuple.readNumber();
+        const critical = propTuple.readBoolean();
+
+        const paramTuple = propTuple.readTuple();
+
+        return {
+            expires,
+            critical,
+            param_id: paramTuple.readNumber(),
+            value: paramTuple.readCell()
+        }
     }
 
     static newVotingProposalMessage(proposal: {
@@ -68,7 +83,26 @@ export class Config implements Contract {
 
     }
 
-    static setCustomSlotMessage(param_id: -1024 | -1025, value: Cell, receiver_address: Address | null,
+    static mockVoteMessage(idx: number, propHash: Buffer | bigint, queryId: number | bigint = 0) {
+        const voteProp: bigint = Buffer.isBuffer(propHash) ? BigInt('0x' + propHash.toString('hex')) : propHash;
+
+        return beginCell()
+                .storeUint(Op.voteForProposal, 32)
+                .storeUint(queryId, 64)
+                .storeBuffer(Buffer.alloc(64)) // 512 bits mock signature
+                .storeUint(0x566f7445, 32) // Sign tag
+                .storeUint(idx, 16) // Validator index
+                .storeUint(voteProp, 256)
+               .endCell();
+    }
+
+    static newVsetMessage(vset: Cell, queryId: number | bigint = 0) {
+        return beginCell()
+                .storeUint(Op.newValidatorsSet, 32)
+                .storeUint(queryId, 64)
+                .storeRef(vset)
+               .endCell();
+    }
                                 query_id: bigint | number = 0) {
         return beginCell()
                         .storeUint(Op.setCustomSlot, 32)
