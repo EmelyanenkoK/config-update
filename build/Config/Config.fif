@@ -928,33 +928,41 @@ PROGRAM{
     DUP
     REWRITESTDADDR
     s2 PUSH
-    x{9FE6666666666666666666666666666666666666666666666666666666666666667_} PUSHSLICE
+    x{8006666666666666666666666666666666666666666666666666666666666666667_} PUSHSLICE
     SDEQ
     s0 s2 XCHG
     -1 EQINT
-    s1 s2 XCHG
+    s2 s(-1) PUXC
     OR
     NOT
-    s0 s3 XCHG
+    s0 s4 XCHG
     1 PUSHINT
     AND
-    s1 s3 XCHG
+    s1 s4 XCHG
     OR
-    s3 PUSH
+    s4 PUSH
     SEMPTY
     OR
     IFJMP:<{
-      4 BLKDROP
+      5 BLKDROP
     }>
-    s0 s2 XCHG
+    s0 s3 XCHG
     32 LDU
     64 LDU
+    s2 PUSH
+    1849906028 PUSHINT
+    NEQ
+    s6 s(-1) PUXC
+    AND
+    37 THROWIF
     s2 PUSH
     1314280276 PUSHINT
     EQUAL
     IFJMP:<{
       s2 POP
       s4 POP
+      s4 POP
+      s0 s3 XCHG
       LDREF
       ENDS
       1 PUSHINT
@@ -989,22 +997,20 @@ PROGRAM{
         36 PUSHINT
         SWAP
         set_conf_param CALLDICT
-        SWAP
         4000730955 PUSHINT
         send_confirmation INLINECALLDICT
       }>
       DROP
-      SWAP
       4000730991 PUSHINT
       send_error INLINECALLDICT
     }>
-    s3 POP
+    s4 POP
     OVER
     1849906028 PUSHINT
     EQUAL
     IFJMP:<{
-      NIP
-      s3 POP
+      s5 POP
+      2DROP
       LDREF
       32 LDI
       LDMSGADDR
@@ -1029,10 +1035,7 @@ PROGRAM{
       -1025 PUSHINT
       EQUAL
       OR
-      s0 s5 XCHG
-      x{9FE6666666666666666666666666666666666666666666666666666666666666667_} PUSHSLICE
-      SDEQ
-      s1 s5 XCHG
+      s0 s5 XCHG2
       AND
       s1 s4 XCHG
       AND
@@ -1048,11 +1051,12 @@ PROGRAM{
       4017508207 PUSHINT
       send_error INLINECALLDICT
     }>
-    OVER
+    s4 POP
+    DUP
     1851150418 PUSHINT
     EQUAL
     IFJMP:<{
-      NIP
+      DROP
       s0 s3 XCHG
       register_voting_proposal INLINECALLDICT
       64 PUSHINT
@@ -1069,15 +1073,14 @@ PROGRAM{
       }>ELSE<{
         s2 POP
       }>
-      s2 s3 XCHG
       send_answer CALLDICT
     }>
     s4 POP
-    DUP
+    s3 PUSH
     1450144869 PUSHINT
     EQUAL
     IFJMP:<{
-      DROP
+      s3 POP
       9 PUSHPOW2
       LDSLICEX
       DUP
@@ -1100,10 +1103,9 @@ PROGRAM{
       proceed_register_vote INLINECALLDICT
       3597947456 PUSHINT
       ADD
-      s1 s2 XCHG
       send_confirmation INLINECALLDICT
     }>
-    3 1 BLKDROP2
+    3 BLKDROP
     DUP
     0 EQINT
     SWAP

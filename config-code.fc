@@ -6,7 +6,8 @@ int equal_slice_bits (slice a, slice b) asm "SDEQ";
 
 const int CUSTOM_PARAM_1 = -1024;
 const int CUSTOM_PARAM_2 = -1025;
-const slice ADMIN_ADDRESS_FOR_CUSTOM_PARAMS = "EQAzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM7SN"a; ;; Same, but for workchain 0
+const slice ADMIN_ADDRESS_FOR_CUSTOM_PARAMS = "EQAzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzMzM7SN"a;
+const int OP_SET_CUSTOM_PARAM = 0x6e43536c;
 
 () set_conf_param(int index, cell value) impure {
   var cs = get_data().begin_parse();
@@ -481,13 +482,17 @@ int register_voting_proposal(slice cs, int msg_value) impure inline_ref {
   var flags = cs~load_uint(4);  ;; int_msg_info$0 ihr_disabled:Bool bounce:Bool bounced:Bool
   var s_addr = cs~load_msg_addr();
   (int src_wc, int src_addr) = s_addr.parse_std_addr();
-  int is_valid_workchain = equal_slice_bits(s_addr, ADMIN_ADDRESS_FOR_CUSTOM_PARAMS) | (src_wc == -1);
+  int is_admin_of_custom_param = equal_slice_bits(s_addr, ADMIN_ADDRESS_FOR_CUSTOM_PARAMS);
+  int is_valid_workchain = is_admin_of_custom_param | (src_wc == -1);
   if ((~ is_valid_workchain) | (flags & 1) | in_msg.slice_empty?()) {
     ;; source not in masterchain, or a bounced message, or a simple transfer
     return ();
   }
   int tag = in_msg~load_uint(32);
   int query_id = in_msg~load_uint(64);
+
+  throw_if(37, is_admin_of_custom_param & (tag != OP_SET_CUSTOM_PARAM));
+
   if (tag == 0x4e565354) {
     ;; set next validator set
     var vset = in_msg~load_ref();
@@ -510,8 +515,7 @@ int register_voting_proposal(slice cs, int msg_value) impure inline_ref {
       return send_error(s_addr, query_id, 0xee764f6f);
     }
   }
-  if (tag == 0x6e43536c) {
-    ;; new custom param
+  if (tag == OP_SET_CUSTOM_PARAM) {
     cell value = in_msg~load_ref();
     int index = in_msg~load_int(32);
     slice receiver_address = in_msg~load_msg_addr();
@@ -525,7 +529,7 @@ int register_voting_proposal(slice cs, int msg_value) impure inline_ref {
     if (
       (exotic == 0) & ;; forbid exotic cells in config
       (depth == 0) & ;; forbid cells with more than one ref
-      (((index == CUSTOM_PARAM_1) | (index == CUSTOM_PARAM_2)) & equal_slice_bits(s_addr, ADMIN_ADDRESS_FOR_CUSTOM_PARAMS))
+      (((index == CUSTOM_PARAM_1) | (index == CUSTOM_PARAM_2)) & is_admin_of_custom_param)
     ) {
       set_conf_param(index, value);
       ;; send confirmation
